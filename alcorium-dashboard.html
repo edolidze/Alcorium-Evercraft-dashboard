@@ -1,0 +1,2022 @@
+<title>Alcorium Promo Analysis</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<style>
+/* ── Layout: sticky header, KPI strip, insight grid, tabs ── */
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #e2e8f0;
+  --fg: #0f172a;
+  --muted: #64748b;
+  --accent: #0d9488;
+  --accent-dim: rgba(13,148,136,0.1);
+  --green: #15803d;
+  --green-dim: rgba(21,128,61,0.1);
+  --amber: #b45309;
+  --amber-dim: rgba(180,83,9,0.1);
+  --red: #b91c1c;
+  --red-dim: rgba(185,28,28,0.1);
+  --grid: rgba(148,163,184,0.18);
+  color-scheme: light;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080d18;
+    --surface: #101827;
+    --surface2: #182035;
+    --border: #1e2d48;
+    --fg: #e2e8f0;
+    --muted: #8899b4;
+    --accent: #2dd4bf;
+    --accent-dim: rgba(45,212,191,0.1);
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.1);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.1);
+    --grid: rgba(100,116,139,0.18);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080d18;
+  --surface: #101827;
+  --surface2: #182035;
+  --border: #1e2d48;
+  --fg: #e2e8f0;
+  --muted: #8899b4;
+  --accent: #2dd4bf;
+  --accent-dim: rgba(45,212,191,0.1);
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,0.1);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.1);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.1);
+  --grid: rgba(100,116,139,0.18);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 40px;
+}
+
+/* ── Header ── */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 11;
+  background: var(--surface);
+}
+.header-inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+.site-header h1 {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(16px, 3vw, 22px);
+  color: var(--fg);
+  line-height: 1.2;
+}
+.header-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.badge.amber { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+
+/* ── Container ── */
+.wrap { max-width: 1200px; margin: 0 auto; }
+
+/* ── KPI strip ── */
+.kpi-section { padding: 24px 0 0; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 700px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 400px) { .kpi-grid { grid-template-columns: 1fr; } }
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.kpi-label { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.kpi-value {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 800;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.kpi-delta { font-size: 12px; margin-top: 4px; }
+.kpi-delta.g { color: var(--green); }
+.kpi-delta.a { color: var(--accent); }
+
+/* ── Vision cards ── */
+.vision-section { padding: 28px 0 0; }
+.section-title {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.insight-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+@media (max-width: 1000px) { .insight-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .insight-grid { grid-template-columns: 1fr; } }
+.insight-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.insight-card.g { border-left: 3px solid var(--green); }
+.insight-card.a { border-left: 3px solid var(--accent); }
+.insight-card.w { border-left: 3px solid var(--amber); }
+.insight-card.r { border-left: 3px solid var(--red); }
+.insight-num {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-size: 24px; font-weight: 800;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.insight-num.g { color: var(--green); }
+.insight-num.a { color: var(--accent); }
+.insight-num.w { color: var(--amber); }
+.insight-num.r { color: var(--red); }
+.insight-ttl { font-weight: 600; font-size: 13px; color: var(--fg); line-height: 1.35; text-wrap: balance; }
+.insight-body { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ── Tabs ── */
+.tabs-section { padding: 28px 0 0; }
+.tabs-nav {
+  display: flex;
+  gap: 2px;
+  border-bottom: 2px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn:hover { color: var(--fg); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-panel { display: none; padding-top: 20px; }
+.tab-panel.active { display: block; }
+
+/* ── Chart cards ── */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 20px 16px;
+}
+.chart-card + .chart-card { margin-top: 16px; }
+.chart-card h3 {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.chart-note { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.chart-wrap { position: relative; }
+.chart-wrap canvas { max-width: 100%; }
+.chart-wrap.tall { max-height: 560px; overflow-y: auto; }
+
+/* ── Elasticity tab layout ── */
+.elast-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 800px) { .elast-layout { grid-template-columns: 1fr; } }
+
+.stat-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.big-num-block {
+  text-align: center;
+  padding: 20px;
+  background: var(--accent-dim);
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+}
+.big-num {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-size: 56px; font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.big-num-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.big-num-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.interp-block { font-size: 13px; line-height: 1.6; color: var(--fg); }
+.interp-block strong { color: var(--accent); }
+
+/* ── Simulator ── */
+.simulator {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.simulator-title { font-weight: 600; font-size: 13px; margin-bottom: 10px; }
+.sim-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.sim-row label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+input[type="range"] {
+  flex: 1; min-width: 100px;
+  accent-color: var(--accent);
+}
+.sim-result { font-size: 20px; font-weight: 700; font-family: 'Syne', sans-serif; }
+.sim-result.pos { color: var(--green); }
+.sim-result.neg { color: var(--red); }
+.sim-rev { font-size: 12px; color: var(--muted); }
+.sim-baseline { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ── Motivation tab ── */
+.motiv-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 700px) { .motiv-layout { grid-template-columns: 1fr; } }
+.warning-card {
+  background: var(--amber-dim);
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  padding: 20px;
+}
+.warning-card .warn-num {
+  font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800;
+  color: var(--amber); line-height: 1;
+}
+.warning-card .warn-label { font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 14px; }
+.warning-card ul { padding-left: 18px; }
+.warning-card li { font-size: 13px; color: var(--fg); line-height: 1.6; margin-bottom: 4px; }
+.note-box {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  padding: 10px 12px;
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* ── Caveats ── */
+.caveats-section { padding: 24px 0 0; }
+details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+summary {
+  font-weight: 600; font-size: 13px;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: var(--muted);
+  user-select: none;
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "▸ "; }
+details[open] summary::before { content: "▾ "; }
+.caveats-body {
+  padding: 0 16px 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.caveats-body p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.caveats-body strong { color: var(--fg); }
+
+/* ── Promo efficiency 2-col grid ── */
+.promo-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:700px) { .promo-grid { grid-template-columns:1fr; } }
+/* ── Scorecard table ── */
+.sc-table { width:100%; border-collapse:collapse; font-size:12px; }
+.sc-table th {
+  text-align:right; padding:8px 10px; color:var(--muted);
+  font-size:11px; letter-spacing:.04em; text-transform:uppercase;
+  border-bottom:2px solid var(--border); cursor:pointer;
+  white-space:nowrap; user-select:none;
+}
+.sc-table th:first-child { text-align:left; }
+.sc-table th:hover { color:var(--fg); }
+.sc-table th.sort-asc::after { content:" ▲"; font-size:9px; }
+.sc-table th.sort-desc::after { content:" ▼"; font-size:9px; }
+.sc-table td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:right; font-variant-numeric:tabular-nums; }
+.sc-table td:first-child { text-align:left; font-weight:600; color:var(--fg); }
+.sc-table tr:hover td { background:var(--surface2); }
+.g-txt { color:var(--green); font-weight:600; }
+.r-txt { color:var(--red); font-weight:600; }
+/* ── Heatmap table ── */
+.hm-wrap { overflow-x:auto; }
+.hm-table { border-collapse:collapse; font-size:12px; min-width:600px; width:100%; }
+.hm-table th { padding:6px 8px; color:var(--muted); font-weight:500; font-size:11px; letter-spacing:.04em; white-space:nowrap; border-bottom:1px solid var(--border); text-align:center; }
+.hm-table th:first-child { text-align:left; min-width:140px; }
+.hm-table td { padding:4px 6px; text-align:center; white-space:nowrap; }
+.hm-table td:first-child { text-align:left; color:var(--fg); font-weight:500; padding-right:12px; }
+.hm-cell { display:inline-block; min-width:52px; padding:3px 6px; border-radius:4px; text-align:center; font-variant-numeric:tabular-nums; font-size:11px; }
+/* ── Segment nav (sub-views within Monthly Trends) ── */
+.seg-nav { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.seg-btn {
+  font-size: 12px; font-weight: 500;
+  color: var(--muted); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 5px 14px; cursor: pointer;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.seg-btn:hover { color: var(--fg); }
+.seg-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.seg-panel { display: none; }
+.seg-panel.active { display: block; }
+/* ── Sales sub-nav (scoped to Sales tab) ── */
+.sseg-btn {
+  font-size: 12px; font-weight: 500;
+  color: var(--muted); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 5px 14px; cursor: pointer;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.sseg-btn:hover { color: var(--fg); }
+.sseg-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.sseg-panel { display: none; }
+.sseg-panel.active { display: block; }
+/* ── Chart top row ── */
+.chart-top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 0; flex-wrap: wrap; }
+.chart-top-row h3 { margin-bottom: 2px; }
+.metric-toggle { display: flex; gap: 2px; flex-shrink: 0; margin-top: 2px; }
+.metric-btn {
+  font-size: 11px; font-weight: 500; color: var(--muted); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; cursor: pointer;
+  transition: color .12s, background .12s;
+}
+.metric-btn:hover { color: var(--fg); }
+.metric-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+/* ── Product select ── */
+.product-select-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.product-select-row label { font-size: 13px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+select.product-select {
+  flex: 1; min-width: 200px; max-width: 540px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--fg); border-radius: 6px; padding: 7px 12px;
+  font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; outline: none;
+}
+select.product-select:focus { border-color: var(--accent); }
+</style>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <span class="eyebrow">Evercraft × Alcorium · January – October 2026</span>
+      <h1>Discount &amp; Motivation Impact</h1>
+    </div>
+    <div class="header-badges">
+      <span class="badge">41 SKUs</span>
+      <span class="badge">309 observations</span>
+      <span class="badge">VAT-inclusive prices</span>
+      <span class="badge amber">Sep–Oct motivation excluded</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ── KPI STRIP ── -->
+<section class="kpi-section">
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Units Sold</div>
+      <div class="kpi-value">112,795</div>
+      <div class="kpi-delta g">▲ Jul peak: 17,918</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Revenue (VAT-incl.)</div>
+      <div class="kpi-value">₾4.54M</div>
+      <div class="kpi-delta a">Jul peak: ₾640K</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Pooled Discount Elasticity</div>
+      <div class="kpi-value" style="color:var(--accent)">1.10</div>
+      <div class="kpi-sub">R² = 0.175 · n = 302 SKU-months</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Portfolio Discount</div>
+      <div class="kpi-value">23.6%</div>
+      <div class="kpi-sub">Range 10 – 50% · median ≈ 25%</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE VISION ── -->
+<section class="vision-section">
+  <div class="section-title">The Vision — 5 key findings</div>
+  <div class="insight-grid">
+    <div class="insight-card g">
+      <div class="insight-num g">+122%</div>
+      <div class="insight-ttl">Seasonality, not discounts, doubles volume</div>
+      <div class="insight-body">Units rose from Jan (8K) to Jul (18K) while avg discount crept just 5pp (21%→26%). Summer drives the signal.</div>
+    </div>
+    <div class="insight-card a">
+      <div class="insight-num a">1.10×</div>
+      <div class="insight-ttl">Discounts work — and are revenue-positive</div>
+      <div class="insight-body">Elasticity > 1 means 10pp deeper cut → ~11% more units/day within the same SKU. At ε > 1 and discounts &lt; 52%, deeper promos also lift gross revenue.</div>
+    </div>
+    <div class="insight-card a">
+      <div class="insight-num a">6× spread</div>
+      <div class="insight-ttl">Carnet cognac vs Lorenzo Prosecco</div>
+      <div class="insight-body">Carnet VSOP elasticity 5.9 (R²=0.71). Lorenzo flagship Prosecco 0.72 (R²=0.17). Identical discount depth, opposite price sensitivity.</div>
+    </div>
+    <div class="insight-card w">
+      <div class="insight-num w">R²=0.004</div>
+      <div class="insight-ttl">Motivation: too flat to measure</div>
+      <div class="insight-body">Monthly avg stays 4.0 ± 0.2 all Jan–Aug. Near-zero within-SKU variation makes estimation impossible. Unit unconfirmed.</div>
+    </div>
+    <div class="insight-card r">
+      <div class="insight-num r">−30%</div>
+      <div class="insight-ttl">Post-summer cliff holds despite deeper promos</div>
+      <div class="insight-body">Aug→Oct units fell from 16.7K to 11.7K while discounts held at 26–27%. Structural seasonal pullback, not a promo failure.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TABS ── -->
+<section class="tabs-section">
+  <nav class="tabs-nav" role="tablist" aria-label="Analysis tabs">
+    <button class="tab-btn active" data-tab="sales">Sales</button>
+    <button class="tab-btn" data-tab="trends">Monthly Trends</button>
+    <button class="tab-btn" data-tab="elasticity">Discount Elasticity</button>
+    <button class="tab-btn" data-tab="mix">Portfolio Mix</button>
+    <button class="tab-btn" data-tab="scorecards">Brand Scorecards</button>
+    <button class="tab-btn" data-tab="heatmap">Heatmap</button>
+    <button class="tab-btn" data-tab="promo">Promo Efficiency</button>
+    <button class="tab-btn" data-tab="price">Price Realization</button>
+  </nav>
+
+  <!-- SALES TAB -->
+  <div id="tab-sales" class="tab-panel active">
+    <nav class="seg-nav">
+      <button class="sseg-btn active" data-sseg="total">Total</button>
+      <button class="sseg-btn" data-sseg="category">By Category</button>
+      <button class="sseg-btn" data-sseg="brand">By Brand</button>
+      <button class="sseg-btn" data-sseg="product">By Product</button>
+    </nav>
+
+    <!-- TOTAL -->
+    <div class="sseg-panel active" id="sseg-total">
+      <div class="chart-card">
+        <h3>Monthly Sales — Units &amp; Revenue</h3>
+        <p class="chart-note">Bars = Revenue (₾), right axis = Units sold. Hover over any month to see avg selling price (₾/unit) — the blended realized price that month.</p>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chart-sales-total"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY CATEGORY -->
+    <div class="sseg-panel" id="sseg-category">
+      <div class="chart-card">
+        <h3>Sales by Category</h3>
+        <p class="chart-note">Select a category. Bars = revenue; line = units sold. Hover for avg selling price (₾/unit).</p>
+        <div class="product-select-row" style="margin-top:12px">
+          <label for="sales-cat-select">Category:</label>
+          <select id="sales-cat-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-sales-cat"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY BRAND -->
+    <div class="sseg-panel" id="sseg-brand">
+      <div class="chart-card">
+        <h3>Sales by Brand</h3>
+        <p class="chart-note">Select a brand. Bars = revenue; line = units sold. Hover for avg selling price (₾/unit).</p>
+        <div class="product-select-row" style="margin-top:12px">
+          <label for="sales-brand-select">Brand:</label>
+          <select id="sales-brand-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-sales-brand"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY PRODUCT -->
+    <div class="sseg-panel" id="sseg-product">
+      <div class="chart-card">
+        <h3>Sales by Product</h3>
+        <p class="chart-note">Select a product. Bars = units; right line = revenue (₾). Hover for avg selling price (₾/unit) — shows whether the realized price drifts as discounts change.</p>
+        <div class="product-select-row" style="margin-top:14px">
+          <label for="sales-product-select">Product:</label>
+          <select id="sales-product-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-sales-product"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP SKUs (embedded below monthly sales) -->
+    <div class="chart-card" style="margin-top:16px">
+      <h3>Top 15 SKUs by Total Revenue</h3>
+      <p class="chart-note">Jan–Oct 2026, VAT-inclusive GEL. Excludes launch months. Bars colored by brand family.</p>
+      <div class="chart-wrap" style="height:480px">
+        <canvas id="chart-skus"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRENDS TAB -->
+  <div id="tab-trends" class="tab-panel">
+    <nav class="seg-nav">
+      <button class="seg-btn active" data-seg="total">Total</button>
+      <button class="seg-btn" data-seg="category">By Category</button>
+      <button class="seg-btn" data-seg="brand">By Brand</button>
+      <button class="seg-btn" data-seg="product">By Product</button>
+    </nav>
+
+    <!-- TOTAL VIEW -->
+    <div class="seg-panel active" id="seg-total">
+      <div class="chart-card">
+        <h3>Monthly Units &amp; Revenue vs Average Discount Depth</h3>
+        <p class="chart-note">Excludes launch months. Discount % on the right axis. Motivation (purple dotted) covers Jan–Aug only; axis is hidden — hover to see values.</p>
+        <div class="chart-wrap" style="height:320px">
+          <canvas id="chart-trends"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY CATEGORY VIEW -->
+    <div class="seg-panel" id="seg-category">
+      <div class="chart-card">
+        <div class="chart-top-row">
+          <div>
+            <h3>Monthly Trend — Category</h3>
+            <p class="chart-note">Select a category. Bars = units or revenue; dashed line = that category's own avg discount %. Excludes launch months.</p>
+          </div>
+          <div class="metric-toggle">
+            <button class="metric-btn active" data-metric="units" data-seg="category">Units</button>
+            <button class="metric-btn" data-metric="rev" data-seg="category">Revenue</button>
+          </div>
+        </div>
+        <div class="product-select-row" style="margin-top:12px">
+          <label for="cat-select">Category:</label>
+          <select id="cat-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-cat"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY BRAND VIEW -->
+    <div class="seg-panel" id="seg-brand">
+      <div class="chart-card">
+        <div class="chart-top-row">
+          <div>
+            <h3>Monthly Trend — Brand</h3>
+            <p class="chart-note">Select a brand. Bars = units or revenue; dashed line = that brand's own avg discount %. Excludes launch months.</p>
+          </div>
+          <div class="metric-toggle">
+            <button class="metric-btn active" data-metric="units" data-seg="brand">Units</button>
+            <button class="metric-btn" data-metric="rev" data-seg="brand">Revenue</button>
+          </div>
+        </div>
+        <div class="product-select-row" style="margin-top:12px">
+          <label for="brand-select">Brand:</label>
+          <select id="brand-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-brand"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BY PRODUCT VIEW -->
+    <div class="seg-panel" id="seg-product">
+      <div class="chart-card">
+        <h3>Monthly Trend — Single Product</h3>
+        <p class="chart-note">Select a product to see its monthly units vs average discount depth.</p>
+        <div class="product-select-row" style="margin-top:14px">
+          <label for="product-select">Product:</label>
+          <select id="product-select" class="product-select"></select>
+        </div>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-product"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ELASTICITY TAB -->
+  <div id="tab-elasticity" class="tab-panel">
+    <div class="elast-layout">
+      <!-- Left: stat + simulator -->
+      <div class="stat-hero">
+        <div class="chart-card">
+          <div class="big-num-block">
+            <div class="big-num">1.10</div>
+            <div class="big-num-label">Pooled discount elasticity (ε)</div>
+            <div class="big-num-sub">R² = 0.175 · n = 302 · within-SKU log-log OLS</div>
+          </div>
+          <div class="interp-block" style="margin-top:14px">
+            <strong>What it means:</strong> Going from a 20% to 25% discount (5pp deeper) → estimated <strong>+27% more units/day</strong> within the same SKU.<br><br>
+            Because ε > 1 and all discounts are below 52%, deeper promos are <strong>gross-revenue positive</strong> at the portfolio level.<br><br>
+            <span style="color:var(--amber);font-size:12px">⚠ Upward-bias warning: discounts tend to deepen in summer when sales are naturally higher. The true elasticity may be lower.</span>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="simulator">
+            <div class="simulator-title">Elasticity simulator (ε = 1.10)</div>
+            <div class="sim-row">
+              <label>Target discount:</label>
+              <input type="range" id="sim-slider" min="10" max="50" step="1" value="25">
+              <span id="sim-disc-label" style="font-weight:600;min-width:32px">25%</span>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+              <span class="sim-result pos" id="sim-result">+27%</span>
+              <span class="sim-rev" id="sim-rev">units/day vs 20% baseline</span>
+            </div>
+            <div class="sim-rev" id="sim-rev2" style="margin-top:4px"></div>
+            <div class="sim-baseline">Baseline = 20% discount (most common low-discount reference)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: SKU elasticity bar chart -->
+      <div class="chart-card">
+        <h3>Discount Elasticity by SKU</h3>
+        <p class="chart-note">Within-SKU log-log OLS, ≥ 3 observations. Green = positive (discount lifts sales); red = negative (inverse). Sorted descending. R² shown as opacity hint.</p>
+        <div class="chart-wrap" style="height:600px">
+          <canvas id="chart-elasticity"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO MIX TAB -->
+  <div id="tab-mix" class="tab-panel">
+    <div class="chart-card">
+      <div class="chart-top-row">
+        <div>
+          <h3>Portfolio Mix — Monthly Share</h3>
+          <p class="chart-note">Each bar = 100% of that month. Shows how the category composition of sales shifts Jan–Oct. Hover for absolute values.</p>
+        </div>
+        <div class="metric-toggle">
+          <button class="metric-btn active" data-mix="units">Units</button>
+          <button class="metric-btn" data-mix="rev">Revenue</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:380px; margin-top:12px">
+        <canvas id="chart-mix"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND SCORECARDS TAB -->
+  <div id="tab-scorecards" class="tab-panel">
+    <div class="chart-card">
+      <h3>Brand Scorecards — Totals</h3>
+      <p class="chart-note">Jan–Oct 2026. Click any column header to sort. Growth = last active month vs first active month. Motivation = Jan–Aug avg (— if no data).</p>
+      <div id="scorecards-container" style="margin-top:14px; overflow-x:auto"></div>
+    </div>
+    <div class="chart-card" style="margin-top:16px">
+      <h3>Brand Scorecards — Monthly Averages</h3>
+      <p class="chart-note">Averages per active month — normalises for brands with fewer months on shelf. Click any column header to sort.</p>
+      <div id="scorecards-avg-container" style="margin-top:14px; overflow-x:auto"></div>
+    </div>
+  </div>
+
+  <!-- SEASONALITY HEATMAP TAB -->
+  <div id="tab-heatmap" class="tab-panel">
+    <div class="chart-card">
+      <div class="chart-top-row">
+        <div>
+          <h3>Seasonality Heatmap</h3>
+          <p class="chart-note">Intensity = value relative to each row's peak month. Darker = higher. Numbers in cells.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div class="metric-toggle">
+            <button class="metric-btn active" data-heat-seg="category">By Category</button>
+            <button class="metric-btn" data-heat-seg="brand">By Brand</button>
+          </div>
+          <div class="metric-toggle">
+            <button class="metric-btn active" data-heat-metric="units">Units</button>
+            <button class="metric-btn" data-heat-metric="rev">Revenue</button>
+          </div>
+        </div>
+      </div>
+      <div id="heatmap-container" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <!-- PROMO EFFICIENCY TAB -->
+  <div id="tab-promo" class="tab-panel">
+    <div class="promo-grid">
+      <div class="chart-card">
+        <h3>By Brand</h3>
+        <p class="chart-note">₾ revenue per motivation unit (Jan–Aug). Only brands with motivation data shown. Higher = better ROI per promo point.</p>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-promo-brand"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>By Category</h3>
+        <p class="chart-note">₾ revenue per motivation unit (Jan–Aug). Only categories with motivation data shown.</p>
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="chart-promo-cat"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICE REALIZATION TAB -->
+  <div id="tab-price" class="tab-panel">
+    <div class="chart-card">
+      <h3>Price Realization by Category</h3>
+      <p class="chart-note">Avg selling price (revenue ÷ units) per category, per month. A declining line = discounts eroding realized prices. Gaps = category not active that month.</p>
+      <div class="chart-wrap" style="height:380px">
+        <canvas id="chart-price"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CAVEATS ── -->
+<section class="caveats-section">
+  <details>
+    <summary>Methodology &amp; Data Caveats</summary>
+    <div class="caveats-body">
+      <p><strong>Source:</strong> Ver1.xlsx Sheet1, 417 rows (Jan–Oct 2026, 41 SKUs). Row 1 = "2026", row 2 = headers, data from row 3. Read with openpyxl data_only=True.</p>
+      <p><strong>Availability:</strong> 96 rows with no promo dates = not yet launched at Alcorium. These are excluded from all models and treated as "not available", not as zero-discount observations.</p>
+      <p><strong>Normalisation:</strong> Units per day = units ÷ window days (end − start + 1). For months with 2–3 price windows (split rows), window days are summed and discount is day-weighted. Motivation deduplicated across split rows of the same SKU-month (non-zero unique value used).</p>
+      <p><strong>Launch months flagged:</strong> An Ambavi (4 SKUs, started 16 Jul), Ardfort Extra Sherry (started 16 Sep), Halstons motivation (started 15 Apr). Launch months excluded from elasticity and trend models; flagged elsewhere.</p>
+      <p><strong>Elasticity method:</strong> Within-SKU demeaned log-log OLS on ln(units/day) ~ ln(discount fraction). Requires ≥ 3 non-launch observations per SKU. Pooled: β = 1.096, R² = 0.175, n = 302. Caution: summer brings both naturally higher sales and deeper discounts, potentially upward-biasing the elasticity estimate.</p>
+      <p><strong>Motivation:</strong> Jan–Aug only (n = 198 within-SKU pairs). Sep–Oct excluded due to target-based scheme change. Unit unconfirmed. Monthly avg 3.8–4.3 leaves very little within-SKU variation for estimation.</p>
+      <p><strong>Revenue &amp; prices:</strong> All figures VAT-inclusive GEL. The regular price rose in Jul for Ambavi and Gogla's SKUs; row-level prices are used throughout.</p>
+    </div>
+  </details>
+</section>
+
+</div><!-- /wrap -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const MONTHLY = [
+  {m:"Jan", units:8351,  rev:386146, disc:21.1, skus:28},
+  {m:"Feb", units:4779,  rev:291643, disc:20.4, skus:19},
+  {m:"Mar", units:8244,  rev:372841, disc:21.8, skus:29},
+  {m:"Apr", units:7863,  rev:338793, disc:20.5, skus:30},
+  {m:"May", units:11831, rev:512709, disc:23.2, skus:34},
+  {m:"Jun", units:15237, rev:567195, disc:24.8, skus:34},
+  {m:"Jul", units:18340, rev:649293, disc:26.4, skus:38},
+  {m:"Aug", units:16672, rev:577405, disc:26.7, skus:38},
+  {m:"Sep", units:12593, rev:501804, disc:26.5, skus:41},
+  {m:"Oct", units:11764, rev:442022, disc:26.9, skus:41},
+];
+
+// Top 15 SKUs by revenue, with short labels and brand codes
+const TOP_SKUS = [
+  {label:"Forswood Whisky 1L",          rev:745271, units:9117,  brand:"FOR"},
+  {label:"Lorenzo Prosecco 0.75L",       rev:664818, units:21796, brand:"LOR"},
+  {label:"Ardfort 1708 Whisky 1L",       rev:451021, units:4926,  brand:"ARD"},
+  {label:"Ardfort 1708 Whisky 0.7L",     rev:403526, units:6011,  brand:"ARD"},
+  {label:"Forswood Whisky 0.7L",         rev:395548, units:6426,  brand:"FOR"},
+  {label:"Lorenzo Blanc de Blancs 0.75L",rev:272064, units:13262, brand:"LOR"},
+  {label:"Lorenzo Prosecco Rosé 0.75L",  rev:220630, units:9277,  brand:"LOR"},
+  {label:"Lorenzo Moscato 0.75L",        rev:179487, units:7921,  brand:"LOR"},
+  {label:"Carnet VSOP 0.7L",             rev:126121, units:1115,  brand:"CAR"},
+  {label:"Carnet VS 0.7L",               rev:123764, units:1243,  brand:"CAR"},
+  {label:"Halstons Gin 1L",              rev:123601, units:1594,  brand:"FOR"},
+  {label:"Danu Irish Cream 0.7L",        rev:86038,  units:2585,  brand:"MAT"},
+  {label:"Ambavi ქისი 0.75L",            rev:68572,  units:3337,  brand:"AMB"},
+  {label:"Halstons Gin 0.7L",            rev:64056,  units:1086,  brand:"FOR"},
+  {label:"Ambavi ქინძმარაული 0.75L",     rev:58273,  units:2465,  brand:"AMB"},
+];
+
+const SKU_ELAST = [
+  {label:"Materra Blanco 1L",            e:7.23, r2:0.45, n:8,  brand:"MAT"},
+  {label:"Carnet VSOP 0.7L",             e:5.94, r2:0.71, n:10, brand:"CAR"},
+  {label:"Carnet VS 0.7L",               e:4.83, r2:0.81, n:10, brand:"CAR"},
+  {label:"Materra Negra 1L",             e:3.39, r2:0.39, n:8,  brand:"MAT"},
+  {label:"Lorenzo Prosecco Rosé 0.75L",  e:3.07, r2:0.19, n:10, brand:"LOR"},
+  {label:"Danu Irish Cream 0.7L",        e:2.78, r2:0.58, n:6,  brand:"MAT"},
+  {label:"Gogla's Tsaraph. Red 0.75L",   e:2.07, r2:0.60, n:10, brand:"GOG"},
+  {label:"Gogla's Sapheravi 0.75L",      e:1.80, r2:0.50, n:10, brand:"GOG"},
+  {label:"Gogla's Kindzmarauli 0.75L",   e:1.68, r2:0.36, n:10, brand:"GOG"},
+  {label:"Ambavi Sapheravi 0.75L",       e:1.51, r2:0.64, n:6,  brand:"AMB"},
+  {label:"Ardfort 1708 1L",              e:1.49, r2:0.13, n:10, brand:"ARD"},
+  {label:"Lorenzo Chianti 0.75L",        e:1.47, r2:0.72, n:9,  brand:"LOR"},
+  {label:"Ardfort 1708 0.7L",            e:1.44, r2:0.34, n:9,  brand:"ARD"},
+  {label:"Ambavi Kvisi Red 0.75L",       e:1.27, r2:0.24, n:6,  brand:"AMB"},
+  {label:"Forswood Whisky 0.7L",         e:1.17, r2:0.35, n:9,  brand:"FOR"},
+  {label:"Lorenzo Limoncello 0.7L",      e:1.13, r2:0.54, n:6,  brand:"LOR"},
+  {label:"Gogla's Kvisi Red 0.75L",      e:1.08, r2:0.29, n:6,  brand:"GOG"},
+  {label:"Ambavi Mtvane 0.75L",          e:1.04, r2:0.72, n:7,  brand:"AMB"},
+  {label:"Lorenzo Moscato 0.75L",        e:0.92, r2:0.03, n:10, brand:"LOR"},
+  {label:"Lorenzo Rosso d'Italia 0.75L", e:0.85, r2:0.52, n:9,  brand:"LOR"},
+  {label:"Lorenzo Prosecco 0.75L",       e:0.72, r2:0.17, n:9,  brand:"LOR"},
+  {label:"Ambavi Kindzmarauli 0.75L",    e:0.72, r2:0.44, n:7,  brand:"AMB"},
+  {label:"Gogla's Sauvignon Blanc 0.7L", e:0.66, r2:0.12, n:8,  brand:"GOG"},
+  {label:"Forswood Whisky 1L",           e:0.62, r2:0.09, n:10, brand:"FOR"},
+  {label:"Ambavi Mukuzani 0.75L",        e:0.47, r2:0.46, n:8,  brand:"AMB"},
+  {label:"Lorenzo Chardonnay 0.75L",     e:0.43, r2:0.04, n:9,  brand:"LOR"},
+  {label:"Lorenzo Pinot Grigio 0.75L",   e:0.33, r2:0.07, n:9,  brand:"LOR"},
+  {label:"Lorenzo Bianco d'Italia 0.75L",e:0.16, r2:0.02, n:9,  brand:"LOR"},
+  {label:"Lorenzo Primitivo 0.75L",      e:-0.10, r2:0.01, n:9, brand:"LOR"},
+  {label:"Gogla's Khikhvi 0.75L",        e:-0.26, r2:0.05, n:10,brand:"GOG"},
+  {label:"Halstons Gin 1L",              e:-1.63, r2:0.22, n:6, brand:"FOR"},
+  {label:"Lorenzo Vermentino 0.75L",     e:-1.64, r2:0.14, n:10,brand:"LOR"},
+  {label:"Halstons Gin 0.7L",            e:-3.48, r2:0.61, n:6, brand:"FOR"},
+];
+
+const MOTIV_MONTHLY = [
+  {m:"Jan", v:4.0}, {m:"Feb", v:4.3}, {m:"Mar", v:4.0},
+  {m:"Apr", v:3.8}, {m:"May", v:4.1}, {m:"Jun", v:4.0},
+  {m:"Jul", v:4.0}, {m:"Aug", v:3.8}
+];
+
+// ── CATEGORY / BRAND / SKU MONTHLY DATA ───────────────────────────────────────
+const CAT_MONTHS = {
+  "Cognac":[{m:"Jan",units:291,rev:31892,disc:28.4,motiv:13.0},{m:"Feb",units:374,rev:39585,disc:28.4,motiv:13.0},{m:"Mar",units:305,rev:33327,disc:28.4,motiv:13.0},{m:"Apr",units:260,rev:27940,disc:28.4,motiv:13.0},{m:"May",units:358,rev:37631,disc:28.4,motiv:13.0},{m:"Jun",units:269,rev:27223,disc:28.4,motiv:13.0},{m:"Jul",units:252,rev:25632,disc:28.4,motiv:13.0},{m:"Aug",units:155,rev:15931,disc:28.4,motiv:13.0},{m:"Sep",units:56,rev:6474,disc:20.1,motiv:null},{m:"Oct",units:38,rev:4250,disc:20.1,motiv:null}],
+  "Gin":[{m:"May",units:296,rev:20081,disc:25.0,motiv:4.5},{m:"Jun",units:372,rev:25785,disc:20.6,motiv:4.5},{m:"Jul",units:708,rev:49725,disc:20.6,motiv:4.5},{m:"Aug",units:415,rev:29750,disc:20.6,motiv:4.5},{m:"Sep",units:427,rev:29499,disc:20.6,motiv:null},{m:"Oct",units:462,rev:32817,disc:20.6,motiv:null}],
+  "Italian Wine":[{m:"Jan",units:841,rev:17434,disc:25.7,motiv:1.83},{m:"Feb",units:58,rev:1335,disc:28.2,motiv:2.03},{m:"Mar",units:715,rev:16606,disc:18.0,motiv:1.83},{m:"Apr",units:740,rev:17285,disc:17.4,motiv:1.83},{m:"May",units:862,rev:19992,disc:19.0,motiv:2.0},{m:"Jun",units:840,rev:18811,disc:19.0,motiv:2.0},{m:"Jul",units:1097,rev:24549,disc:19.0,motiv:2.0},{m:"Aug",units:1188,rev:26680,disc:19.0,motiv:2.0},{m:"Sep",units:1132,rev:23335,disc:22.6,motiv:null},{m:"Oct",units:1182,rev:24870,disc:22.7,motiv:null}],
+  "Liqueur":[{m:"May",units:566,rev:20606,disc:31.9,motiv:4.0},{m:"Jun",units:720,rev:24871,disc:33.7,motiv:4.0},{m:"Jul",units:918,rev:31393,disc:33.7,motiv:4.0},{m:"Aug",units:763,rev:27346,disc:33.7,motiv:4.0},{m:"Sep",units:599,rev:23346,disc:25.5,motiv:null},{m:"Oct",units:383,rev:14733,disc:25.5,motiv:null}],
+  "Other":[{m:"Sep",units:13,rev:271,disc:46.8,motiv:null},{m:"Oct",units:1,rev:21,disc:46.8,motiv:null}],
+  "Rum":[{m:"Mar",units:103,rev:5616,disc:35.3,motiv:4.5},{m:"Apr",units:232,rev:12638,disc:35.3,motiv:4.5},{m:"May",units:240,rev:13103,disc:35.3,motiv:4.5},{m:"Jun",units:376,rev:19837,disc:35.3,motiv:3.5},{m:"Jul",units:340,rev:17961,disc:35.3,motiv:3.5},{m:"Aug",units:158,rev:8682,disc:35.3,motiv:3.5},{m:"Sep",units:82,rev:4896,disc:29.4,motiv:null},{m:"Oct",units:86,rev:5100,disc:29.4,motiv:null}],
+  "Sparkling Wine":[{m:"Jan",units:3958,rev:96781,disc:28.4,motiv:1.47},{m:"Feb",units:874,rev:21543,disc:19.4,motiv:1.41},{m:"Mar",units:4072,rev:107391,disc:26.2,motiv:1.47},{m:"Apr",units:3819,rev:100968,disc:25.0,motiv:1.47},{m:"May",units:5081,rev:133229,disc:26.2,motiv:1.7},{m:"Jun",units:6814,rev:172030,disc:26.2,motiv:1.67},{m:"Jul",units:9472,rev:236944,disc:26.2,motiv:1.67},{m:"Aug",units:8471,rev:220803,disc:26.2,motiv:1.62},{m:"Sep",units:4687,rev:119712,disc:23.1,motiv:null},{m:"Oct",units:5008,rev:127599,disc:26.2,motiv:null}],
+  "Whisky":[{m:"Jan",units:2665,rev:223993,disc:17.4,motiv:7.0},{m:"Feb",units:2580,rev:209271,disc:23.3,motiv:6.0},{m:"Mar",units:2453,rev:193482,disc:23.6,motiv:6.0},{m:"Apr",units:1996,rev:158450,disc:21.6,motiv:5.67},{m:"May",units:3223,rev:234648,disc:26.9,motiv:6.67},{m:"Jun",units:3460,rev:233447,disc:27.7,motiv:5.67},{m:"Jul",units:3046,rev:208077,disc:24.4,motiv:5.67},{m:"Aug",units:2620,rev:181412,disc:24.8,motiv:5.0},{m:"Sep",units:2944,rev:235977,disc:21.6,motiv:null},{m:"Oct",units:2059,rev:173010,disc:21.2,motiv:null}],
+  "Wine":[{m:"Jan",units:596,rev:16045,disc:13.3,motiv:3.07},{m:"Feb",units:893,rev:19910,disc:17.4,motiv:2.6},{m:"Mar",units:596,rev:16419,disc:14.3,motiv:3.43},{m:"Apr",units:816,rev:21513,disc:14.9,motiv:3.48},{m:"May",units:1205,rev:33420,disc:14.4,motiv:3.93},{m:"Jun",units:2386,rev:45191,disc:23.4,motiv:3.62},{m:"Jul",units:2507,rev:55013,disc:29.1,motiv:3.55},{m:"Aug",units:2902,rev:66802,disc:29.5,motiv:3.62},{m:"Sep",units:2653,rev:58294,disc:29.4,motiv:null},{m:"Oct",units:2545,rev:59622,disc:29.4,motiv:null}]
+};
+const BRAND_MONTHS = {
+  "Ambavi":[{m:"Jan",units:525,rev:13855,disc:10.0,motiv:2.5},{m:"Feb",units:793,rev:16972,disc:20.5,motiv:1.66},{m:"Mar",units:485,rev:13090,disc:null,motiv:3.32},{m:"Apr",units:671,rev:16973,disc:16.1,motiv:3.32},{m:"May",units:1047,rev:28529,disc:null,motiv:4.3},{m:"Jun",units:2126,rev:37336,disc:34.2,motiv:null},{m:"Jul",units:2224,rev:46493,disc:32.5,motiv:null},{m:"Aug",units:2406,rev:51767,disc:32.5,motiv:null},{m:"Sep",units:2492,rev:53356,disc:32.5,motiv:null},{m:"Oct",units:1991,rev:43040,disc:32.5,motiv:null}],
+  "Ardfort 1708":[{m:"Jan",units:1108,rev:100881,disc:16.7,motiv:7.0},{m:"Feb",units:1618,rev:130244,disc:23.6,motiv:6.0},{m:"Mar",units:1237,rev:100704,disc:25.1,motiv:6.0},{m:"Apr",units:731,rev:61141,disc:21.1,motiv:5.0},{m:"May",units:1123,rev:82672,disc:26.4,motiv:8.0},{m:"Jun",units:1060,rev:71731,disc:28.1,motiv:5.0},{m:"Jul",units:1228,rev:88810,disc:21.5,motiv:5.0},{m:"Aug",units:1211,rev:81604,disc:22.2,motiv:5.0},{m:"Sep",units:1330,rev:110667,disc:21.2,motiv:null},{m:"Oct",units:857,rev:82493,disc:20.4,motiv:null}],
+  "Carnet":[{m:"Jan",units:291,rev:31892,disc:28.4,motiv:13.0},{m:"Feb",units:374,rev:39585,disc:28.4,motiv:13.0},{m:"Mar",units:305,rev:33327,disc:28.4,motiv:13.0},{m:"Apr",units:260,rev:27940,disc:28.4,motiv:13.0},{m:"May",units:358,rev:37631,disc:28.4,motiv:13.0},{m:"Jun",units:269,rev:27223,disc:28.4,motiv:13.0},{m:"Jul",units:252,rev:25632,disc:28.4,motiv:13.0},{m:"Aug",units:155,rev:15931,disc:28.4,motiv:13.0},{m:"Sep",units:56,rev:6474,disc:20.1,motiv:null},{m:"Oct",units:38,rev:4250,disc:20.1,motiv:null}],
+  "Danu":[{m:"May",units:382,rev:13235,disc:36.4,motiv:3.0},{m:"Jun",units:466,rev:14762,disc:40.1,motiv:3.0},{m:"Jul",units:615,rev:19365,disc:40.1,motiv:3.0},{m:"Aug",units:442,rev:14494,disc:40.1,motiv:3.0},{m:"Sep",units:405,rev:14404,disc:34.6,motiv:null},{m:"Oct",units:275,rev:9777,disc:34.6,motiv:null}],
+  "Gogla's":[{m:"Jan",units:71,rev:2190,disc:14.4,motiv:3.55},{m:"Feb",units:100,rev:2938,disc:14.3,motiv:3.55},{m:"Mar",units:111,rev:3330,disc:14.3,motiv:3.55},{m:"Apr",units:145,rev:4540,disc:14.4,motiv:3.62},{m:"May",units:158,rev:4890,disc:14.4,motiv:3.62},{m:"Jun",units:260,rev:7855,disc:14.4,motiv:3.62},{m:"Jul",units:283,rev:8520,disc:25.1,motiv:3.55},{m:"Aug",units:496,rev:15035,disc:25.1,motiv:3.62},{m:"Sep",units:161,rev:4937,disc:24.7,motiv:null},{m:"Oct",units:554,rev:16582,disc:24.7,motiv:null}],
+  "Halstons":[{m:"May",units:296,rev:20081,disc:25.0,motiv:4.5},{m:"Jun",units:372,rev:25785,disc:20.6,motiv:4.5},{m:"Jul",units:708,rev:49725,disc:20.6,motiv:4.5},{m:"Aug",units:415,rev:29750,disc:20.6,motiv:4.5},{m:"Sep",units:427,rev:29499,disc:20.6,motiv:null},{m:"Oct",units:462,rev:32817,disc:20.6,motiv:null}],
+  "Lorenzo Cipriani":[{m:"Jan",units:4799,rev:114215,disc:26.7,motiv:1.7},{m:"Feb",units:932,rev:22878,disc:22.4,motiv:1.61},{m:"Mar",units:4787,rev:123997,disc:21.0,motiv:1.7},{m:"Apr",units:4559,rev:118252,disc:20.1,motiv:1.7},{m:"May",units:6127,rev:160592,disc:22.1,motiv:2.15},{m:"Jun",units:7908,rev:200950,disc:22.1,motiv:2.18},{m:"Jul",units:10872,rev:273520,disc:22.1,motiv:2.18},{m:"Aug",units:9980,rev:260335,disc:22.1,motiv:2.12},{m:"Sep",units:6013,rev:151988,disc:22.2,motiv:null},{m:"Oct",units:6298,rev:157424,disc:23.4,motiv:null}],
+  "Materra":[{m:"Mar",units:103,rev:5616,disc:35.3,motiv:4.5},{m:"Apr",units:232,rev:12638,disc:35.3,motiv:4.5},{m:"May",units:240,rev:13103,disc:35.3,motiv:4.5},{m:"Jun",units:376,rev:19837,disc:35.3,motiv:3.5},{m:"Jul",units:340,rev:17961,disc:35.3,motiv:3.5},{m:"Aug",units:158,rev:8682,disc:35.3,motiv:3.5},{m:"Sep",units:82,rev:4896,disc:29.4,motiv:null},{m:"Oct",units:86,rev:5100,disc:29.4,motiv:null}],
+  "Other":[{m:"Sep",units:13,rev:271,disc:46.8,motiv:null},{m:"Oct",units:1,rev:21,disc:46.8,motiv:null}],
+  "The Forswood":[{m:"Jan",units:1557,rev:123112,disc:18.2,motiv:7.0},{m:"Feb",units:962,rev:79026,disc:22.7,motiv:6.0},{m:"Mar",units:1216,rev:92778,disc:22.0,motiv:6.0},{m:"Apr",units:1265,rev:97309,disc:22.0,motiv:6.0},{m:"May",units:2100,rev:151976,disc:27.3,motiv:6.0},{m:"Jun",units:2400,rev:161716,disc:27.3,motiv:6.0},{m:"Jul",units:1818,rev:119266,disc:27.3,motiv:6.0},{m:"Aug",units:1409,rev:99807,disc:27.3,motiv:5.0},{m:"Sep",units:1614,rev:125310,disc:22.0,motiv:null},{m:"Oct",units:1202,rev:90517,disc:22.0,motiv:null}]
+};
+const SKU_MONTHS = {
+  "3760004340003":{"product":"Carnet VS 0,7 L 40%","brand":"Carnet","cat":"Cognac","months":[{m:"Jan",units:98,rev:9805,disc:28.6,motiv:12.0},{m:"Feb",units:102,rev:9920,disc:28.6,motiv:12.0},{m:"Mar",units:109,rev:10895,disc:28.6,motiv:12.0},{m:"Apr",units:136,rev:13571,disc:28.6,motiv:12.0},{m:"May",units:248,rev:24956,disc:28.6,motiv:12.0},{m:"Jun",units:175,rev:16928,disc:28.6,motiv:12.0},{m:"Jul",units:185,rev:18143,disc:28.6,motiv:12.0},{m:"Aug",units:120,rev:11921,disc:28.6,motiv:12.0},{m:"Sep",units:38,rev:4151,disc:21.4,motiv:null},{m:"Oct",units:32,rev:3473,disc:21.4,motiv:null}]},
+  "3760004340010":{"product":"Carnet VSOP 0,7 L 40%","brand":"Carnet","cat":"Cognac","months":[{m:"Jan",units:193,rev:22087,disc:28.1,motiv:14.0},{m:"Feb",units:272,rev:29665,disc:28.1,motiv:14.0},{m:"Mar",units:196,rev:22432,disc:28.1,motiv:14.0},{m:"Apr",units:124,rev:14368,disc:28.1,motiv:14.0},{m:"May",units:110,rev:12674,disc:28.1,motiv:14.0},{m:"Jun",units:94,rev:10296,disc:28.1,motiv:14.0},{m:"Jul",units:67,rev:7489,disc:28.1,motiv:14.0},{m:"Aug",units:35,rev:4009,disc:28.1,motiv:14.0},{m:"Sep",units:18,rev:2323,disc:18.8,motiv:null},{m:"Oct",units:6,rev:777,disc:18.8,motiv:null}]},
+  "4860103711908":{"product":"Gogla's ქინძმარაული","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:18,rev:538,disc:14.3,motiv:3.55},{m:"Feb",units:48,rev:1391,disc:14.3,motiv:3.55},{m:"Mar",units:36,rev:1078,disc:14.3,motiv:3.55},{m:"Apr",units:39,rev:1187,disc:14.3,motiv:3.55},{m:"May",units:62,rev:1846,disc:14.3,motiv:3.55},{m:"Jun",units:107,rev:3179,disc:14.3,motiv:3.55},{m:"Jul",units:113,rev:3370,disc:25.1,motiv:3.55},{m:"Aug",units:195,rev:5824,disc:25.1,motiv:3.55},{m:"Sep",units:37,rev:1105,disc:25.1,motiv:null},{m:"Oct",units:226,rev:6740,disc:25.1,motiv:null}]},
+  "4860103711915":{"product":"Gogla's საფერავი","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:20,rev:608,disc:14.3,motiv:3.55},{m:"Feb",units:14,rev:412,disc:14.3,motiv:3.55},{m:"Mar",units:23,rev:688,disc:14.3,motiv:3.55},{m:"Apr",units:26,rev:784,disc:14.3,motiv:3.55},{m:"May",units:34,rev:1029,disc:14.3,motiv:3.55},{m:"Jun",units:64,rev:1898,disc:14.3,motiv:3.55},{m:"Jul",units:72,rev:2150,disc:25.1,motiv:3.55},{m:"Aug",units:123,rev:3673,disc:25.1,motiv:3.55},{m:"Sep",units:31,rev:925,disc:25.1,motiv:null},{m:"Oct",units:113,rev:3375,disc:25.1,motiv:null}]},
+  "4860103711922":{"product":"Gogla's ქისი","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:0,rev:0,disc:14.3,motiv:3.55},{m:"Feb",units:0,rev:0,disc:14.3,motiv:3.55},{m:"Mar",units:2,rev:59,disc:14.3,motiv:3.55},{m:"Apr",units:1,rev:30,disc:14.3,motiv:3.55},{m:"May",units:2,rev:59,disc:14.3,motiv:3.55},{m:"Jun",units:3,rev:83,disc:14.3,motiv:3.55},{m:"Jul",units:2,rev:60,disc:25.1,motiv:3.55},{m:"Aug",units:0,rev:0,disc:25.1,motiv:3.55},{m:"Sep",units:0,rev:0,disc:25.1,motiv:null},{m:"Oct",units:6,rev:179,disc:25.1,motiv:null}]},
+  "4860103711939":{"product":"Gogla's ხიხვი","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:13,rev:400,disc:14.3,motiv:3.55},{m:"Feb",units:7,rev:208,disc:14.3,motiv:3.55},{m:"Mar",units:16,rev:479,disc:14.3,motiv:3.55},{m:"Apr",units:7,rev:208,disc:14.3,motiv:3.55},{m:"May",units:8,rev:253,disc:14.3,motiv:3.55},{m:"Jun",units:13,rev:381,disc:14.3,motiv:3.55},{m:"Jul",units:11,rev:328,disc:25.1,motiv:3.55},{m:"Aug",units:12,rev:358,disc:25.1,motiv:3.55},{m:"Sep",units:6,rev:179,disc:25.1,motiv:null},{m:"Oct",units:8,rev:238,disc:25.1,motiv:null}]},
+  "4860103711946":{"product":"Gogla's წარაფი","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:11,rev:333,disc:14.3,motiv:3.55},{m:"Feb",units:31,rev:927,disc:14.3,motiv:3.55},{m:"Mar",units:34,rev:1026,disc:14.3,motiv:3.55},{m:"Apr",units:41,rev:1244,disc:14.3,motiv:3.55},{m:"May",units:36,rev:1112,disc:14.3,motiv:3.55},{m:"Jun",units:40,rev:1183,disc:14.3,motiv:3.55},{m:"Jul",units:63,rev:1867,disc:25.1,motiv:3.55},{m:"Aug",units:125,rev:3749,disc:25.1,motiv:3.55},{m:"Sep",units:61,rev:1821,disc:25.1,motiv:null},{m:"Oct",units:180,rev:5320,disc:25.1,motiv:null}]},
+  "4860103713339":{"product":"Gogla's Sauvignon Blanc","brand":"Gogla's","cat":"Wine","months":[{m:"Jan",units:9,rev:312,disc:15.0,motiv:3.55},{m:"Apr",units:31,rev:1087,disc:15.0,motiv:3.98},{m:"May",units:16,rev:592,disc:15.0,motiv:3.98},{m:"Jun",units:33,rev:1131,disc:15.0,motiv:3.98},{m:"Jul",units:22,rev:745,disc:25.2,motiv:3.55},{m:"Aug",units:41,rev:1432,disc:25.2,motiv:3.98},{m:"Sep",units:26,rev:907,disc:23.0,motiv:null},{m:"Oct",units:21,rev:728,disc:23.0,motiv:null}]},
+  "4860126980015":{"product":"ამბავი ქინძმარაული","brand":"Ambavi","cat":"Wine","months":[{m:"Jan",units:159,rev:4276,disc:10.0,motiv:2.72},{m:"Feb",units:151,rev:3467,disc:21.5,motiv:1.81},{m:"Mar",units:68,rev:2033,disc:null,motiv:3.61},{m:"Apr",units:93,rev:2781,disc:null,motiv:3.61},{m:"May",units:226,rev:6757,disc:null,motiv:5.0},{m:"Jun",units:431,rev:8420,disc:33.4,motiv:null},{m:"Jul",units:250,rev:5696,disc:32.4,motiv:null},{m:"Aug",units:197,rev:4515,disc:32.4,motiv:null},{m:"Sep",units:467,rev:10673,disc:32.4,motiv:null},{m:"Oct",units:423,rev:9655,disc:32.4,motiv:null}]},
+  "4860126980039":{"product":"ამბავი საფერავი","brand":"Ambavi","cat":"Wine","months":[{m:"Jan",units:87,rev:2253,disc:null,motiv:2.35},{m:"Feb",units:134,rev:2789,disc:19.3,motiv:1.56},{m:"Mar",units:114,rev:2953,disc:null,motiv:3.12},{m:"Apr",units:114,rev:2953,disc:null,motiv:3.12},{m:"May",units:208,rev:5387,disc:null,motiv:4.0},{m:"Jun",units:391,rev:6508,disc:34.7,motiv:null},{m:"Jul",units:325,rev:6434,disc:32.5,motiv:null},{m:"Aug",units:202,rev:4023,disc:32.5,motiv:null},{m:"Sep",units:414,rev:8212,disc:32.5,motiv:null},{m:"Oct",units:324,rev:6419,disc:32.5,motiv:null}]},
+  "4860126980053":{"product":"ამბავი მუკუზანი","brand":"Ambavi","cat":"Wine","months":[{m:"Jan",units:100,rev:2690,disc:10.0,motiv:2.72},{m:"Feb",units:146,rev:3215,disc:22.9,motiv:1.81},{m:"Mar",units:64,rev:1914,disc:null,motiv:3.61},{m:"Apr",units:116,rev:2937,disc:16.7,motiv:3.61},{m:"May",units:127,rev:3797,disc:null,motiv:5.0},{m:"Jun",units:185,rev:3633,disc:33.4,motiv:null},{m:"Jul",units:135,rev:3127,disc:32.4,motiv:null},{m:"Aug",units:118,rev:2703,disc:32.4,motiv:null},{m:"Sep",units:206,rev:4703,disc:32.4,motiv:null},{m:"Oct",units:236,rev:5387,disc:32.4,motiv:null}]},
+  "4860126980077":{"product":"ამბავი მწვანე","brand":"Ambavi","cat":"Wine","months":[{m:"Jan",units:95,rev:2460,disc:null,motiv:2.35},{m:"Feb",units:147,rev:3047,disc:19.3,motiv:1.56},{m:"Mar",units:110,rev:2849,disc:null,motiv:3.12},{m:"Apr",units:187,rev:4133,disc:15.4,motiv:3.12},{m:"May",units:186,rev:4817,disc:null,motiv:4.0},{m:"Jun",units:467,rev:7808,disc:34.7,motiv:null},{m:"Jul",units:415,rev:8227,disc:32.5,motiv:null},{m:"Aug",units:358,rev:7209,disc:32.5,motiv:null},{m:"Sep",units:306,rev:6065,disc:32.5,motiv:null},{m:"Oct",units:266,rev:5268,disc:32.5,motiv:null}]},
+  "4860126980091":{"product":"ამბავი ქისი","brand":"Ambavi","cat":"Wine","months":[{m:"Jan",units:84,rev:2176,disc:null,motiv:2.35},{m:"Feb",units:215,rev:4454,disc:19.3,motiv:1.56},{m:"Mar",units:129,rev:3341,disc:null,motiv:3.12},{m:"Apr",units:161,rev:4170,disc:null,motiv:3.12},{m:"May",units:300,rev:7770,disc:null,motiv:3.5},{m:"Jun",units:652,rev:10967,disc:34.7,motiv:null},{m:"Jul",units:677,rev:13489,disc:32.5,motiv:null},{m:"Aug",units:572,rev:11473,disc:32.5,motiv:null},{m:"Sep",units:372,rev:7282,disc:32.5,motiv:null},{m:"Oct",units:175,rev:3451,disc:32.5,motiv:null}]},
+  "4860126980152":{"product":"ამბავი ჩინური","brand":"Ambavi","cat":"Wine","months":[{m:"Jul",units:101,rev:2304,disc:32.5,motiv:null},{m:"Aug",units:177,rev:4030,disc:32.4,motiv:null},{m:"Sep",units:163,rev:3651,disc:32.4,motiv:null},{m:"Oct",units:102,rev:2322,disc:32.4,motiv:null}]},
+  "4860126980176":{"product":"ამბავი გორული მწვანე","brand":"Ambavi","cat":"Wine","months":[{m:"Jul",units:142,rev:3201,disc:32.5,motiv:null},{m:"Aug",units:324,rev:7371,disc:32.4,motiv:null},{m:"Sep",units:226,rev:5076,disc:32.4,motiv:null},{m:"Oct",units:192,rev:4369,disc:32.4,motiv:null}]},
+  "4860126980190":{"product":"ამბავი ხიხვი","brand":"Ambavi","cat":"Wine","months":[{m:"Jul",units:102,rev:2275,disc:32.5,motiv:null},{m:"Aug",units:250,rev:5700,disc:32.4,motiv:null},{m:"Sep",units:227,rev:5163,disc:32.4,motiv:null},{m:"Oct",units:183,rev:4120,disc:32.4,motiv:null}]},
+  "4860126980213":{"product":"ამბავი თავკვერი როზე","brand":"Ambavi","cat":"Wine","months":[{m:"Jul",units:77,rev:1740,disc:32.5,motiv:null},{m:"Aug",units:208,rev:4743,disc:32.4,motiv:null},{m:"Sep",units:111,rev:2531,disc:32.4,motiv:null},{m:"Oct",units:90,rev:2050,disc:32.4,motiv:null}]},
+  "5065019734013":{"product":"Halstons Gin 1L","brand":"Halstons","cat":"Gin","months":[{m:"May",units:189,rev:14029,disc:25.0,motiv:5.0},{m:"Jun",units:231,rev:17673,disc:20.0,motiv:5.0},{m:"Jul",units:462,rev:35305,disc:20.0,motiv:5.0},{m:"Aug",units:246,rev:19553,disc:20.0,motiv:5.0},{m:"Sep",units:200,rev:15928,disc:20.0,motiv:null},{m:"Oct",units:266,rev:21112,disc:20.0,motiv:null}]},
+  "5065019734952":{"product":"Halstons Gin 0.7L","brand":"Halstons","cat":"Gin","months":[{m:"May",units:107,rev:6053,disc:25.0,motiv:4.0},{m:"Jun",units:141,rev:8111,disc:21.1,motiv:4.0},{m:"Jul",units:246,rev:14419,disc:21.1,motiv:4.0},{m:"Aug",units:169,rev:10197,disc:21.1,motiv:4.0},{m:"Sep",units:227,rev:13571,disc:21.1,motiv:null},{m:"Oct",units:196,rev:11705,disc:21.1,motiv:null}]},
+  "5065019734983":{"product":"The Forswood Whisky 1L","brand":"The Forswood","cat":"Whisky","months":[{m:"Jan",units:828,rev:74088,disc:18.2,motiv:8.0},{m:"Feb",units:936,rev:76881,disc:22.7,motiv:7.0},{m:"Mar",units:706,rev:59713,disc:22.7,motiv:7.0},{m:"Apr",units:768,rev:65044,disc:22.7,motiv:7.0},{m:"May",units:1344,rev:106823,disc:27.3,motiv:7.0},{m:"Jun",units:1316,rev:100104,disc:27.3,motiv:7.0},{m:"Jul",units:697,rev:53957,disc:27.3,motiv:7.0},{m:"Aug",units:798,rev:63351,disc:27.3,motiv:6.0},{m:"Sep",units:1068,rev:90082,disc:22.7,motiv:null},{m:"Oct",units:656,rev:55227,disc:22.7,motiv:null}]},
+  "5065019734990":{"product":"The Forswood Whisky 0.7L","brand":"The Forswood","cat":"Whisky","months":[{m:"Jan",units:729,rev:49024,disc:18.2,motiv:6.0},{m:"Feb",units:26,rev:2145,disc:null,motiv:null},{m:"Mar",units:510,rev:33065,disc:21.3,motiv:5.0},{m:"Apr",units:497,rev:32265,disc:21.3,motiv:5.0},{m:"May",units:756,rev:45153,disc:27.4,motiv:5.0},{m:"Jun",units:1084,rev:61612,disc:27.4,motiv:5.0},{m:"Jul",units:1121,rev:65309,disc:27.4,motiv:5.0},{m:"Aug",units:611,rev:36456,disc:27.4,motiv:4.0},{m:"Sep",units:546,rev:35228,disc:21.3,motiv:null},{m:"Oct",units:546,rev:35290,disc:21.3,motiv:null}]},
+  "5391545780003":{"product":"Ardfort 1708 Whisky 0.7L","brand":"Ardfort 1708","cat":"Whisky","months":[{m:"Jan",units:384,rev:28762,disc:16.7,motiv:6.0},{m:"Feb",units:518,rev:35188,disc:22.2,motiv:5.0},{m:"Mar",units:431,rev:28795,disc:25.1,motiv:5.0},{m:"Apr",units:353,rev:24823,disc:22.2,motiv:5.0},{m:"May",units:755,rev:49313,disc:27.8,motiv:8.0},{m:"Jun",units:762,rev:47365,disc:27.8,motiv:5.0},{m:"Jul",units:1019,rev:69799,disc:22.2,motiv:5.0},{m:"Aug",units:1118,rev:72351,disc:27.8,motiv:5.0},{m:"Sep",units:648,rev:45061,disc:22.2,motiv:null},{m:"Oct",units:23,rev:2068,disc:null,motiv:null}]},
+  "5391545780010":{"product":"Ardfort 1708 Whisky 1L","brand":"Ardfort 1708","cat":"Whisky","months":[{m:"Jan",units:724,rev:72119,disc:16.7,motiv:8.0},{m:"Feb",units:1100,rev:95056,disc:25.0,motiv:7.0},{m:"Mar",units:806,rev:71910,disc:25.2,motiv:7.0},{m:"Apr",units:378,rev:36317,disc:20.0,motiv:null},{m:"May",units:368,rev:33359,disc:25.0,motiv:null},{m:"Jun",units:298,rev:24366,disc:28.4,motiv:null},{m:"Jul",units:209,rev:19011,disc:20.9,motiv:null},{m:"Aug",units:93,rev:9253,disc:16.7,motiv:null},{m:"Sep",units:440,rev:41426,disc:20.9,motiv:null},{m:"Oct",units:510,rev:48203,disc:20.9,motiv:null}]},
+  "5391545780058":{"product":"Ardfort 1708 Extra Sherry","brand":"Ardfort 1708","cat":"Whisky","months":[{m:"Sep",units:242,rev:24179,disc:20.0,motiv:null},{m:"Oct",units:324,rev:32222,disc:20.0,motiv:null}]},
+  "5391545780089":{"product":"Materra Blanco 1L","brand":"Materra","cat":"Rum","months":[{m:"Mar",units:26,rev:1422,disc:35.3,motiv:5.0},{m:"Apr",units:96,rev:5237,disc:35.3,motiv:5.0},{m:"May",units:131,rev:7161,disc:35.3,motiv:5.0},{m:"Jun",units:219,rev:11598,disc:35.3,motiv:4.0},{m:"Jul",units:227,rev:11968,disc:35.3,motiv:4.0},{m:"Aug",units:106,rev:5776,disc:35.3,motiv:4.0},{m:"Sep",units:34,rev:2033,disc:29.4,motiv:null},{m:"Oct",units:25,rev:1469,disc:29.4,motiv:null}]},
+  "5391545780096":{"product":"Materra Negra 1L","brand":"Materra","cat":"Rum","months":[{m:"Mar",units:77,rev:4194,disc:35.3,motiv:4.0},{m:"Apr",units:136,rev:7401,disc:35.3,motiv:4.0},{m:"May",units:109,rev:5942,disc:35.3,motiv:4.0},{m:"Jun",units:157,rev:8240,disc:35.3,motiv:3.0},{m:"Jul",units:113,rev:5993,disc:35.3,motiv:3.0},{m:"Aug",units:52,rev:2906,disc:35.3,motiv:3.0},{m:"Sep",units:48,rev:2862,disc:29.4,motiv:null},{m:"Oct",units:61,rev:3632,disc:29.4,motiv:null}]},
+  "5391545780126":{"product":"Danu Irish Cream","brand":"Danu","cat":"Liqueur","months":[{m:"May",units:382,rev:13235,disc:36.4,motiv:3.0},{m:"Jun",units:466,rev:14762,disc:40.1,motiv:3.0},{m:"Jul",units:615,rev:19365,disc:40.1,motiv:3.0},{m:"Aug",units:442,rev:14494,disc:40.1,motiv:3.0},{m:"Sep",units:405,rev:14404,disc:34.6,motiv:null},{m:"Oct",units:275,rev:9777,disc:34.6,motiv:null}]},
+  "8002793021288":{"product":"Lorenzo Cipriani Chianti","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:96,rev:2363,disc:25.1,motiv:2.03},{m:"Mar",units:96,rev:2513,disc:21.1,motiv:2.03},{m:"Apr",units:67,rev:1808,disc:16.9,motiv:2.03},{m:"May",units:50,rev:1342,disc:16.9,motiv:2.0},{m:"Jun",units:66,rev:1735,disc:16.9,motiv:2.0},{m:"Jul",units:56,rev:1513,disc:16.9,motiv:2.0},{m:"Aug",units:73,rev:1947,disc:16.9,motiv:2.0},{m:"Sep",units:96,rev:2389,disc:21.9,motiv:null},{m:"Oct",units:106,rev:2638,disc:21.9,motiv:null}]},
+  "8002793021301":{"product":"Lorenzo Cipriani Pinot Grigio","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:215,rev:5107,disc:24.6,motiv:1.96},{m:"Mar",units:173,rev:4619,disc:16.2,motiv:1.96},{m:"Apr",units:188,rev:5006,disc:16.2,motiv:1.96},{m:"May",units:235,rev:6321,disc:16.2,motiv:2.0},{m:"Jun",units:253,rev:6605,disc:16.2,motiv:2.0},{m:"Jul",units:302,rev:7880,disc:16.2,motiv:2.0},{m:"Aug",units:299,rev:7855,disc:16.2,motiv:2.0},{m:"Sep",units:309,rev:7373,disc:22.7,motiv:null},{m:"Oct",units:313,rev:7463,disc:22.7,motiv:null}]},
+  "8002793021325":{"product":"Lorenzo Cipriani Rosso D'Italia","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:114,rev:1837,disc:25.8,motiv:1.33},{m:"Mar",units:84,rev:1556,disc:16.3,motiv:1.33},{m:"Apr",units:91,rev:1631,disc:16.3,motiv:1.33},{m:"May",units:105,rev:1906,disc:16.3,motiv:2.0},{m:"Jun",units:93,rev:1646,disc:16.3,motiv:2.0},{m:"Jul",units:123,rev:2193,disc:16.3,motiv:2.0},{m:"Aug",units:109,rev:1935,disc:16.3,motiv:2.0},{m:"Sep",units:154,rev:2444,disc:23.9,motiv:null},{m:"Oct",units:177,rev:2804,disc:23.9,motiv:null}]},
+  "8002793021349":{"product":"Lorenzo Cipriani Bianco D'Italia","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:242,rev:3900,disc:25.8,motiv:1.33},{m:"Mar",units:217,rev:3998,disc:16.3,motiv:1.33},{m:"Apr",units:190,rev:3528,disc:16.3,motiv:1.33},{m:"May",units:226,rev:4202,disc:16.3,motiv:2.0},{m:"Jun",units:259,rev:4628,disc:16.3,motiv:2.0},{m:"Jul",units:331,rev:5819,disc:16.3,motiv:2.0},{m:"Aug",units:377,rev:6683,disc:16.3,motiv:2.0},{m:"Sep",units:341,rev:5409,disc:23.9,motiv:null},{m:"Oct",units:269,rev:4272,disc:23.9,motiv:null}]},
+  "8002793021363":{"product":"Lorenzo Cipriani Prosecco","brand":"Lorenzo Cipriani","cat":"Sparkling Wine","months":[{m:"Jan",units:1397,rev:39325,disc:30.1,motiv:1.8},{m:"Mar",units:1887,rev:59182,disc:25.1,motiv:1.8},{m:"Apr",units:1459,rev:48524,disc:20.1,motiv:1.8},{m:"May",units:2195,rev:68653,disc:25.1,motiv:1.8},{m:"Jun",units:3067,rev:91670,disc:25.1,motiv:null},{m:"Jul",units:4076,rev:121761,disc:25.1,motiv:null},{m:"Aug",units:4076,rev:123482,disc:25.1,motiv:2.0},{m:"Sep",units:1290,rev:42281,disc:12.5,motiv:null},{m:"Oct",units:2349,rev:69939,disc:25.1,motiv:null}]},
+  "8002793023770":{"product":"Lorenzo Cipriani Primitivo","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:65,rev:1708,disc:25.8,motiv:2.24},{m:"Mar",units:49,rev:1461,disc:17.2,motiv:2.24},{m:"Apr",units:46,rev:1334,disc:17.2,motiv:2.24},{m:"May",units:58,rev:1490,disc:28.7,motiv:2.0},{m:"Jun",units:37,rev:946,disc:28.7,motiv:2.0},{m:"Jul",units:49,rev:1258,disc:28.7,motiv:2.0},{m:"Aug",units:53,rev:1334,disc:28.7,motiv:2.0},{m:"Sep",units:58,rev:1615,disc:20.1,motiv:null},{m:"Oct",units:75,rev:2023,disc:21.2,motiv:null}]},
+  "8002793023794":{"product":"Lorenzo Cipriani Chardonnay","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:66,rev:1521,disc:24.7,motiv:1.89},{m:"Mar",units:65,rev:1683,disc:16.7,motiv:1.89},{m:"Apr",units:91,rev:2309,disc:16.7,motiv:1.89},{m:"May",units:94,rev:2373,disc:16.7,motiv:2.0},{m:"Jun",units:51,rev:1285,disc:16.7,motiv:2.0},{m:"Jul",units:125,rev:3107,disc:16.7,motiv:2.0},{m:"Aug",units:122,rev:3062,disc:16.7,motiv:2.0},{m:"Sep",units:110,rev:2514,disc:23.4,motiv:null},{m:"Oct",units:161,rev:3677,disc:23.4,motiv:null}]},
+  "8002793028928":{"product":"Lorenzo Cipriani Blanc de Blancs","brand":"Lorenzo Cipriani","cat":"Sparkling Wine","months":[{m:"Jan",units:449,rev:9081,disc:28.7,motiv:1.27},{m:"Mar",units:1530,rev:32946,disc:28.7,motiv:1.27},{m:"Apr",units:1511,rev:32104,disc:28.7,motiv:1.27},{m:"May",units:1702,rev:36308,disc:28.7,motiv:1.5},{m:"Jun",units:2153,rev:43515,disc:28.7,motiv:1.5},{m:"Jul",units:2919,rev:58268,disc:28.7,motiv:1.5},{m:"Aug",units:1627,rev:32690,disc:28.7,motiv:1.5},{m:"Sep",units:295,rev:5830,disc:28.7,motiv:null},{m:"Oct",units:1076,rev:21322,disc:28.7,motiv:null}]},
+  "8002793028942":{"product":"Lorenzo Cipriani Prosecco Rose","brand":"Lorenzo Cipriani","cat":"Sparkling Wine","months":[{m:"Jan",units:1145,rev:26585,disc:28.2,motiv:1.45},{m:"Feb",units:268,rev:6992,disc:18.8,motiv:1.45},{m:"Mar",units:172,rev:4155,disc:26.3,motiv:1.45},{m:"Apr",units:401,rev:9971,disc:26.3,motiv:1.45},{m:"May",units:639,rev:15796,disc:26.3,motiv:1.5},{m:"Jun",units:960,rev:22759,disc:26.3,motiv:1.5},{m:"Jul",units:1386,rev:32715,disc:26.3,motiv:1.5},{m:"Aug",units:1613,rev:38488,disc:26.3,motiv:1.5},{m:"Sep",units:1853,rev:43463,disc:26.3,motiv:null},{m:"Oct",units:840,rev:19705,disc:26.3,motiv:null}]},
+  "8002793028966":{"product":"Lorenzo Cipriani Vermentino","brand":"Lorenzo Cipriani","cat":"Italian Wine","months":[{m:"Jan",units:43,rev:998,disc:28.2,motiv:2.03},{m:"Feb",units:58,rev:1335,disc:28.2,motiv:2.03},{m:"Mar",units:31,rev:776,disc:21.9,motiv:2.03},{m:"Apr",units:67,rev:1670,disc:21.9,motiv:2.03},{m:"May",units:94,rev:2356,disc:21.9,motiv:2.0},{m:"Jun",units:81,rev:1966,disc:21.9,motiv:2.0},{m:"Jul",units:111,rev:2779,disc:21.9,motiv:2.0},{m:"Aug",units:155,rev:3864,disc:21.9,motiv:2.0},{m:"Sep",units:64,rev:1591,disc:21.9,motiv:null},{m:"Oct",units:81,rev:1993,disc:21.9,motiv:null}]},
+  "8002793032758":{"product":"Lorenzo Cipriani Moscato","brand":"Lorenzo Cipriani","cat":"Sparkling Wine","months":[{m:"Jan",units:967,rev:21790,disc:26.8,motiv:1.36},{m:"Feb",units:606,rev:14550,disc:20.1,motiv:1.36},{m:"Mar",units:483,rev:11107,disc:24.7,motiv:1.36},{m:"Apr",units:448,rev:10368,disc:24.7,motiv:1.36},{m:"May",units:545,rev:12472,disc:24.7,motiv:2.0},{m:"Jun",units:634,rev:14085,disc:24.7,motiv:2.0},{m:"Jul",units:1091,rev:24200,disc:24.7,motiv:2.0},{m:"Aug",units:1155,rev:26143,disc:24.7,motiv:1.5},{m:"Sep",units:1249,rev:28138,disc:24.7,motiv:null},{m:"Oct",units:743,rev:16633,disc:24.7,motiv:null}]},
+  "8017300240779":{"product":"Lorenzo Cipriani Limoncello","brand":"Lorenzo Cipriani","cat":"Liqueur","months":[{m:"May",units:184,rev:7371,disc:27.3,motiv:5.0},{m:"Jun",units:254,rev:10109,disc:27.3,motiv:5.0},{m:"Jul",units:303,rev:12027,disc:27.3,motiv:5.0},{m:"Aug",units:321,rev:12852,disc:27.3,motiv:5.0},{m:"Sep",units:194,rev:8941,disc:16.4,motiv:null},{m:"Oct",units:108,rev:4955,disc:16.4,motiv:null}]},
+  "8032649190257":{"product":"Labolla Lambrusco","brand":"Other","cat":"Other","months":[{m:"Sep",units:13,rev:271,disc:50.2,motiv:null},{m:"Oct",units:1,rev:21,disc:50.2,motiv:null}]},
+  "8032649190639":{"product":"Marcello Lambrusco","brand":"Other","cat":"Other","months":[{m:"Sep",units:0,rev:0,disc:43.4,motiv:null},{m:"Oct",units:0,rev:0,disc:43.4,motiv:null}]}
+};
+const PRODUCT_LIST = [
+  {sku:"4860126980176",label:"ამბავი გორული მწვანე",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980213",label:"ამბავი თავკვერი როზე",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980053",label:"ამბავი მუკუზანი",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980077",label:"ამბავი მწვანე",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980039",label:"ამბავი საფერავი",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980015",label:"ამბავი ქინძმარაული",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980091",label:"ამბავი ქისი",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980152",label:"ამბავი ჩინური",brand:"Ambavi",cat:"Wine"},
+  {sku:"4860126980190",label:"ამბავი ხიხვი",brand:"Ambavi",cat:"Wine"},
+  {sku:"5391545780003",label:"Ardfort 1708 Whisky 0.7L",brand:"Ardfort 1708",cat:"Whisky"},
+  {sku:"5391545780010",label:"Ardfort 1708 Whisky 1L",brand:"Ardfort 1708",cat:"Whisky"},
+  {sku:"5391545780058",label:"Ardfort 1708 Extra Sherry",brand:"Ardfort 1708",cat:"Whisky"},
+  {sku:"3760004340003",label:"Carnet VS 0.7L",brand:"Carnet",cat:"Cognac"},
+  {sku:"3760004340010",label:"Carnet VSOP 0.7L",brand:"Carnet",cat:"Cognac"},
+  {sku:"5391545780126",label:"Danu Irish Cream",brand:"Danu",cat:"Liqueur"},
+  {sku:"4860103713339",label:"Gogla's Sauvignon Blanc",brand:"Gogla's",cat:"Wine"},
+  {sku:"4860103711915",label:"Gogla's საფერავი",brand:"Gogla's",cat:"Wine"},
+  {sku:"4860103711908",label:"Gogla's ქინძმარაული",brand:"Gogla's",cat:"Wine"},
+  {sku:"4860103711922",label:"Gogla's ქისი",brand:"Gogla's",cat:"Wine"},
+  {sku:"4860103711946",label:"Gogla's წარაფი",brand:"Gogla's",cat:"Wine"},
+  {sku:"4860103711939",label:"Gogla's ხიხვი",brand:"Gogla's",cat:"Wine"},
+  {sku:"5065019734952",label:"Halstons Gin 0.7L",brand:"Halstons",cat:"Gin"},
+  {sku:"5065019734013",label:"Halstons Gin 1L",brand:"Halstons",cat:"Gin"},
+  {sku:"8017300240779",label:"Lorenzo Cipriani Limoncello",brand:"Lorenzo Cipriani",cat:"Liqueur"},
+  {sku:"8002793021349",label:"Lorenzo Cipriani Bianco D'Italia",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793028928",label:"Lorenzo Cipriani Blanc de Blancs",brand:"Lorenzo Cipriani",cat:"Sparkling Wine"},
+  {sku:"8002793023794",label:"Lorenzo Cipriani Chardonnay",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793021288",label:"Lorenzo Cipriani Chianti",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793032758",label:"Lorenzo Cipriani Moscato",brand:"Lorenzo Cipriani",cat:"Sparkling Wine"},
+  {sku:"8002793021301",label:"Lorenzo Cipriani Pinot Grigio",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793023770",label:"Lorenzo Cipriani Primitivo",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793028942",label:"Lorenzo Cipriani Prosecco Rose",brand:"Lorenzo Cipriani",cat:"Sparkling Wine"},
+  {sku:"8002793021363",label:"Lorenzo Cipriani Prosecco",brand:"Lorenzo Cipriani",cat:"Sparkling Wine"},
+  {sku:"8002793021325",label:"Lorenzo Cipriani Rosso D'Italia",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"8002793028966",label:"Lorenzo Cipriani Vermentino",brand:"Lorenzo Cipriani",cat:"Italian Wine"},
+  {sku:"5391545780089",label:"Materra Blanco 1L",brand:"Materra",cat:"Rum"},
+  {sku:"5391545780096",label:"Materra Negra 1L",brand:"Materra",cat:"Rum"},
+  {sku:"8032649190257",label:"Labolla Lambrusco",brand:"Other",cat:"Other"},
+  {sku:"8032649190639",label:"Marcello Lambrusco",brand:"Other",cat:"Other"},
+  {sku:"5065019734990",label:"The Forswood Whisky 0.7L",brand:"The Forswood",cat:"Whisky"},
+  {sku:"5065019734983",label:"The Forswood Whisky 1L",brand:"The Forswood",cat:"Whisky"},
+];
+
+// ── BRAND COLORS (theme-invariant) ──────────────────────────────────────────
+const BRAND_COLOR = {
+  ARD: '#3b82f6',
+  FOR: '#10b981',
+  LOR: '#f59e0b',
+  AMB: '#8b5cf6',
+  GOG: '#ec4899',
+  CAR: '#06b6d4',
+  MAT: '#f97316',
+  OTH: '#6b7280',
+};
+
+// ── THEME HELPERS ─────────────────────────────────────────────────────────────
+function cv(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function chartDefaults() {
+  const fg = cv('--fg'), muted = cv('--muted'), grid = cv('--grid');
+  return { fg, muted, grid };
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+let chartsInited = { sales: false, trends: false, elasticity: false, mix: false, scorecards: false, heatmap: false, promo: false, price: false };
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const tabId = 'tab-' + btn.dataset.tab;
+    const panel = document.getElementById(tabId);
+    if (panel) panel.classList.add('active');
+    const key = btn.dataset.tab;
+    if (!chartsInited[key]) {
+      chartsInited[key] = true;
+      if (key === 'sales') initSales();
+      if (key === 'trends') initTrends();
+      if (key === 'elasticity') initElasticity();
+      if (key === 'mix') initMix();
+      if (key === 'scorecards') initScorecards();
+      if (key === 'heatmap') initHeatmap();
+      if (key === 'promo') initPromo();
+      if (key === 'price') initPrice();
+    }
+  });
+});
+
+// ── SIMULATOR ─────────────────────────────────────────────────────────────────
+const ELAST = 1.096;
+const BASE_DISC = 0.20;
+
+function updateSim() {
+  const slider = document.getElementById('sim-slider');
+  const discLabel = document.getElementById('sim-disc-label');
+  const result = document.getElementById('sim-result');
+  const revEl = document.getElementById('sim-rev2');
+  const d = parseInt(slider.value) / 100;
+  discLabel.textContent = slider.value + '%';
+  const unitChange = Math.pow(d / BASE_DISC, ELAST);
+  const pct = Math.round((unitChange - 1) * 100);
+  result.textContent = (pct >= 0 ? '+' : '') + pct + '% units/day';
+  result.className = 'sim-result ' + (pct >= 0 ? 'pos' : 'neg');
+  // Revenue change: rev ~ disc^elast * (1 - disc)
+  const revIdx = Math.pow(d / BASE_DISC, ELAST) * (1 - d) / (1 - BASE_DISC);
+  const revPct = Math.round((revIdx - 1) * 100);
+  revEl.textContent = `Revenue index: ${(pct >= 0 ? '+' : '')}${revPct}% vs 20% baseline (units × promo price)`;
+}
+document.getElementById('sim-slider').addEventListener('input', updateSim);
+
+// ── CHART: MONTHLY TRENDS ─────────────────────────────────────────────────────
+function initTrends() {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById('chart-trends').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: MONTHLY.map(m => m.m),
+      datasets: [
+        {
+          label: 'Units Sold',
+          data: MONTHLY.map(m => m.units),
+          yAxisID: 'y',
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4, pointHoverRadius: 6,
+          borderWidth: 2,
+        },
+        {
+          label: 'Avg Discount %',
+          data: MONTHLY.map(m => m.disc),
+          yAxisID: 'y2',
+          borderColor: '#f59e0b',
+          borderDash: [6, 3],
+          fill: false,
+          tension: 0.4,
+          pointRadius: 4, pointHoverRadius: 6,
+          borderWidth: 2,
+        },
+        {
+          label: 'Motivation',
+          data: MONTHLY.map(m => { const r = MOTIV_MONTHLY.find(x => x.m === m.m); return r ? r.v : null; }),
+          yAxisID: 'y3',
+          borderColor: '#a855f7',
+          borderDash: [3, 3],
+          backgroundColor: 'transparent',
+          fill: false,
+          tension: 0.4,
+          pointRadius: 4, pointHoverRadius: 6,
+          borderWidth: 2,
+          spanGaps: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: fg, font: { size: 12, family: 'Inter' }, boxWidth: 20 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.dataset.label === 'Avg Discount %') return `  Avg Discount: ${ctx.raw}%`;
+              if (ctx.dataset.label === 'Motivation') return ctx.raw != null ? `  Motivation: ${ctx.raw} (Jan–Aug only)` : null;
+              return `  Units: ${ctx.raw.toLocaleString()}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          type: 'linear', position: 'left',
+          grid: { color: grid },
+          ticks: { color: muted, font: { size: 11 }, callback: v => v.toLocaleString() },
+          title: { display: true, text: 'Units Sold', color: muted, font: { size: 11 } }
+        },
+        y2: {
+          type: 'linear', position: 'right',
+          min: 0, max: 40,
+          grid: { drawOnChartArea: false },
+          ticks: { color: '#f59e0b', font: { size: 11 }, callback: v => v + '%' },
+          title: { display: true, text: 'Avg Discount %', color: '#f59e0b', font: { size: 11 } }
+        },
+        y3: {
+          type: 'linear', position: 'right',
+          min: 3.4, max: 4.6,
+          display: false,
+          grid: { drawOnChartArea: false },
+        },
+        x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ── CATEGORY & BRAND COLORS ───────────────────────────────────────────────────
+const CAT_COLOR = {
+  "Wine":          "#8b5cf6",
+  "Italian Wine":  "#10b981",
+  "Sparkling Wine":"#0ea5e9",
+  "Whisky":        "#f59e0b",
+  "Cognac":        "#dc2626",
+  "Gin":           "#0d9488",
+  "Rum":           "#f97316",
+  "Liqueur":       "#db2777",
+  "Other":         "#94a3b8",
+};
+const BRAND_COL = {
+  "Ardfort 1708":    "#3b82f6",
+  "The Forswood":    "#10b981",
+  "Lorenzo Cipriani":"#f59e0b",
+  "Ambavi":          "#8b5cf6",
+  "Gogla's":         "#ec4899",
+  "Carnet":          "#06b6d4",
+  "Materra":         "#f97316",
+  "Halstons":        "#0d9488",
+  "Danu":            "#84cc16",
+  "Other":           "#94a3b8",
+};
+
+// ── GROUP CHART (single category or brand) ────────────────────────────────────
+let catChartInst = null, brandChartInst = null, productChartInst = null;
+
+function buildGroupChart(canvasId, monthsArr, color, metric) {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const months = monthsArr.map(m=>m.m);
+  const motivData = monthsArr.map(m=>m.motiv??null);
+  const hasMotiv = motivData.some(v=>v!==null);
+  const motivVals = motivData.filter(v=>v!==null);
+  const motivMin = hasMotiv ? Math.floor(Math.min(...motivVals)*0.85) : 0;
+  const motivMax = hasMotiv ? Math.ceil(Math.max(...motivVals)*1.15) : 15;
+  const datasets = [
+    { label: metric==='units'?'Units':'Revenue (₾)',
+      data: monthsArr.map(m=>metric==='units'?m.units:m.rev),
+      backgroundColor: color+'bb', borderColor: color, borderWidth:1, borderRadius:3, yAxisID:'y' },
+    { label:'Avg Discount %', data: monthsArr.map(m=>m.disc), type:'line',
+      yAxisID:'y2', borderColor:'#f59e0b', borderDash:[6,3], backgroundColor:'transparent',
+      fill:false, tension:0.4, pointRadius:5, borderWidth:2 },
+  ];
+  if (hasMotiv) datasets.push(
+    { label:'Motivation', data:motivData, type:'line', yAxisID:'y3',
+      borderColor:'#a855f7', borderDash:[3,3], backgroundColor:'transparent',
+      fill:false, tension:0.4, pointRadius:4, borderWidth:2, spanGaps:false }
+  );
+  return new Chart(ctx, {
+    type:'bar',
+    data:{ labels:months, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color:fg, font:{size:11} } },
+        tooltip:{ callbacks:{ label: c => {
+          if(c.dataset.label==='Avg Discount %') return `  Avg Discount: ${c.raw}%`;
+          if(c.dataset.label==='Motivation') return c.raw!=null?`  Motivation: ${c.raw}`:null;
+          return metric==='rev'?`  Revenue: ₾${c.raw.toLocaleString()}`:`  Units: ${c.raw.toLocaleString()}`;
+        }}}
+      },
+      scales:{
+        x:{ grid:{color:grid}, ticks:{color:muted,font:{size:11}} },
+        y:{ grid:{color:grid},
+          ticks:{color:muted,font:{size:11}, callback:v=>metric==='rev'?'₾'+(v/1000).toFixed(0)+'K':v.toLocaleString()},
+          title:{display:true, text:metric==='rev'?'Revenue (₾)':'Units', color:muted, font:{size:11}} },
+        y2:{ type:'linear', position:'right', min:0, max:55, grid:{drawOnChartArea:false},
+          ticks:{color:'#f59e0b',font:{size:11},callback:v=>v+'%'},
+          title:{display:true, text:'Avg Discount %', color:'#f59e0b', font:{size:11}} },
+        y3:{ type:'linear', position:'right', min:motivMin, max:motivMax, display:false,
+          grid:{drawOnChartArea:false} }
+      }
+    }
+  });
+}
+
+// ── SINGLE PRODUCT CHART ──────────────────────────────────────────────────────
+function buildProductChart(sku) {
+  const { fg, muted, grid } = chartDefaults();
+  const skuData = SKU_MONTHS[sku];
+  if (!skuData) return;
+  const months = skuData.months.map(m=>m.m);
+  const motivData = skuData.months.map(m=>m.motiv??null);
+  const hasMotiv = motivData.some(v=>v!==null);
+  const motivVals = motivData.filter(v=>v!==null);
+  const motivMin = hasMotiv ? Math.floor(Math.min(...motivVals)*0.85) : 0;
+  const motivMax = hasMotiv ? Math.ceil(Math.max(...motivVals)*1.15) : 15;
+  const ctx = document.getElementById('chart-product').getContext('2d');
+  if (productChartInst) { productChartInst.destroy(); productChartInst=null; }
+  const datasets = [
+    { label:'Units', data:skuData.months.map(m=>m.units), backgroundColor:'rgba(59,130,246,0.65)',
+      borderColor:'#3b82f6', borderWidth:1, borderRadius:3, yAxisID:'y' },
+    { label:'Avg Discount %', data:skuData.months.map(m=>m.disc), type:'line',
+      yAxisID:'y2', borderColor:'#f59e0b', borderDash:[6,3], backgroundColor:'transparent',
+      fill:false, tension:0.4, pointRadius:5, borderWidth:2 },
+  ];
+  if (hasMotiv) datasets.push(
+    { label:'Motivation', data:motivData, type:'line', yAxisID:'y3',
+      borderColor:'#a855f7', borderDash:[3,3], backgroundColor:'transparent',
+      fill:false, tension:0.4, pointRadius:4, borderWidth:2, spanGaps:false }
+  );
+  productChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:months, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ labels:{ color:fg, font:{size:11} } },
+        tooltip:{ callbacks:{ label: c => {
+          if(c.dataset.label==='Avg Discount %') return `  Avg Discount: ${c.raw}%`;
+          if(c.dataset.label==='Motivation') return c.raw!=null?`  Motivation: ${c.raw}`:null;
+          return `  Units: ${c.raw.toLocaleString()}`;
+        }}}
+      },
+      scales:{
+        x:{ grid:{color:grid}, ticks:{color:muted,font:{size:11}} },
+        y:{ grid:{color:grid}, ticks:{color:muted,font:{size:11}},
+          title:{display:true, text:'Units', color:muted, font:{size:11}} },
+        y2:{ type:'linear', position:'right', min:0, max:55, grid:{drawOnChartArea:false},
+          ticks:{color:'#f59e0b',font:{size:11},callback:v=>v+'%'},
+          title:{display:true, text:'Avg Discount %', color:'#f59e0b', font:{size:11}} },
+        y3:{ type:'linear', position:'right', min:motivMin, max:motivMax, display:false,
+          grid:{drawOnChartArea:false} }
+      }
+    }
+  });
+}
+
+// ── SELECT POPULATION HELPERS ─────────────────────────────────────────────────
+function populateCatSelect() {
+  const sel = document.getElementById('cat-select');
+  if (sel.options.length > 0) return;
+  const cats = Object.keys(CAT_MONTHS).filter(c=>c!=='Other').sort();
+  if (CAT_MONTHS['Other']) cats.push('Other');
+  for (const cat of cats) {
+    const opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    if (catChartInst) { catChartInst.destroy(); catChartInst=null; }
+    catChartInst = buildGroupChart('chart-cat', CAT_MONTHS[sel.value], CAT_COLOR[sel.value]||'#94a3b8', catMetric);
+  });
+  catChartInst = buildGroupChart('chart-cat', CAT_MONTHS[cats[0]], CAT_COLOR[cats[0]]||'#94a3b8', catMetric);
+}
+
+function populateBrandSelect() {
+  const sel = document.getElementById('brand-select');
+  if (sel.options.length > 0) return;
+  const brands = Object.keys(BRAND_MONTHS).filter(b=>b!=='Other').sort();
+  if (BRAND_MONTHS['Other']) brands.push('Other');
+  for (const brand of brands) {
+    const opt = document.createElement('option');
+    opt.value = brand; opt.textContent = brand; sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    if (brandChartInst) { brandChartInst.destroy(); brandChartInst=null; }
+    brandChartInst = buildGroupChart('chart-brand', BRAND_MONTHS[sel.value], BRAND_COL[sel.value]||'#94a3b8', brandMetric);
+  });
+  brandChartInst = buildGroupChart('chart-brand', BRAND_MONTHS[brands[0]], BRAND_COL[brands[0]]||'#94a3b8', brandMetric);
+}
+
+function populateProductSelect() {
+  const sel = document.getElementById('product-select');
+  if (sel.options.length > 0) return;
+  const brands = [...new Set(PRODUCT_LIST.map(p=>p.brand))].sort();
+  for (const brand of brands) {
+    const group = document.createElement('optgroup');
+    group.label = brand;
+    for (const p of PRODUCT_LIST.filter(x=>x.brand===brand)) {
+      const opt = document.createElement('option');
+      opt.value = p.sku; opt.textContent = p.label; group.appendChild(opt);
+    }
+    sel.appendChild(group);
+  }
+  sel.addEventListener('change', () => buildProductChart(sel.value));
+  buildProductChart(PRODUCT_LIST[0].sku);
+}
+
+// ── SEGMENT SWITCHING (within Monthly Trends tab) ─────────────────────────────
+let segInited = { total:true, category:false, brand:false, product:false };
+let catMetric = 'units', brandMetric = 'units';
+
+document.querySelectorAll('.seg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.seg-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('seg-'+btn.dataset.seg).classList.add('active');
+    if (!segInited[btn.dataset.seg]) {
+      segInited[btn.dataset.seg] = true;
+      if (btn.dataset.seg==='category') populateCatSelect();
+      else if (btn.dataset.seg==='brand') populateBrandSelect();
+      else if (btn.dataset.seg==='product') populateProductSelect();
+    }
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.matches('.metric-btn')) return;
+  const metric = e.target.dataset.metric;
+  const seg = e.target.dataset.seg;
+  e.target.closest('.metric-toggle').querySelectorAll('.metric-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  if (seg==='category') {
+    catMetric = metric;
+    const cat = document.getElementById('cat-select').value;
+    if (catChartInst) { catChartInst.destroy(); catChartInst=null; }
+    catChartInst = buildGroupChart('chart-cat', CAT_MONTHS[cat], CAT_COLOR[cat]||'#94a3b8', metric);
+  } else if (seg==='brand') {
+    brandMetric = metric;
+    const brand = document.getElementById('brand-select').value;
+    if (brandChartInst) { brandChartInst.destroy(); brandChartInst=null; }
+    brandChartInst = buildGroupChart('chart-brand', BRAND_MONTHS[brand], BRAND_COL[brand]||'#94a3b8', metric);
+  }
+});
+
+// ── CHART: SKU ELASTICITY ─────────────────────────────────────────────────────
+function initElasticity() {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById('chart-elasticity').getContext('2d');
+  const data = [...SKU_ELAST].reverse(); // smallest at bottom for readability
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        label: 'Elasticity',
+        data: data.map(d => d.e),
+        backgroundColor: data.map(d => {
+          const col = d.e >= 0 ? '#10b981' : '#ef4444';
+          const alpha = Math.min(0.4 + d.r2 * 0.6, 1.0);
+          return col + Math.round(alpha * 255).toString(16).padStart(2,'0');
+        }),
+        borderColor: data.map(d => d.e >= 0 ? '#10b981' : '#ef4444'),
+        borderWidth: 1,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = data[ctx.dataIndex];
+              return [`  ε = ${d.e}`, `  R² = ${d.r2}`, `  n = ${d.n} obs`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: grid },
+          ticks: { color: muted, font: { size: 11 } },
+          title: { display: true, text: 'Discount elasticity (ε)', color: muted, font: { size: 11 } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: fg, font: { size: 11, family: 'Inter' } }
+        }
+      }
+    }
+  });
+}
+
+// ── CHART: TOP SKUs ───────────────────────────────────────────────────────────
+function initSkus() {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById('chart-skus').getContext('2d');
+  const sorted = [...TOP_SKUS].sort((a,b) => a.rev - b.rev);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s => s.label),
+      datasets: [{
+        label: 'Revenue (₾)',
+        data: sorted.map(s => s.rev),
+        backgroundColor: sorted.map(s => BRAND_COLOR[s.brand] + 'cc'),
+        borderColor:     sorted.map(s => BRAND_COLOR[s.brand]),
+        borderWidth: 1,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const s = sorted[ctx.dataIndex];
+              return [
+                `  Revenue: ₾${s.rev.toLocaleString()}`,
+                `  Units:   ${s.units.toLocaleString()}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: grid },
+          ticks: { color: muted, font: { size: 11 }, callback: v => '₾' + (v/1000).toFixed(0) + 'K' },
+          title: { display: true, text: 'Total Revenue (VAT-incl. GEL)', color: muted, font: { size: 11 } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: fg, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ── CHART: PORTFOLIO MIX ─────────────────────────────────────────────────────
+function initMix() {
+  const ctx = document.getElementById('chart-mix').getContext('2d');
+  const MONTHS_ORD = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+  const cats = Object.keys(CAT_MONTHS).sort();
+  let mixMetric = 'units';
+  let mixChart = null;
+
+  function buildLookup() {
+    const lk = {};
+    for (const cat of cats) { lk[cat] = {}; for (const row of CAT_MONTHS[cat]) lk[cat][row.m] = row; }
+    return lk;
+  }
+
+  function rebuild() {
+    if (mixChart) { mixChart.destroy(); mixChart = null; }
+    const { fg, muted, grid } = chartDefaults();
+    const lk = buildLookup();
+    const totals = {};
+    for (const m of MONTHS_ORD) totals[m] = cats.reduce((s, c) => s + (lk[c][m]?.[mixMetric] || 0), 0);
+    const datasets = cats.map(cat => {
+      const rawVals = MONTHS_ORD.map(m => lk[cat][m]?.[mixMetric] || 0);
+      const pctVals = MONTHS_ORD.map((m, i) => totals[m] > 0 ? +(rawVals[i] / totals[m] * 100).toFixed(1) : 0);
+      return {
+        label: cat, data: pctVals, rawData: rawVals, stack: 'mix',
+        backgroundColor: (CAT_COLOR[cat] || '#94a3b8') + 'dd',
+        borderColor: (CAT_COLOR[cat] || '#94a3b8'), borderWidth: 0.5,
+      };
+    });
+    mixChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: MONTHS_ORD, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: fg, font: { size: 11 } } },
+          tooltip: { callbacks: { label: c => {
+            const raw = c.dataset.rawData[c.dataIndex];
+            const fmtd = mixMetric === 'rev' ? '₾' + (raw/1000).toFixed(0) + 'K' : raw.toLocaleString();
+            return c.raw > 0 ? `  ${c.dataset.label}: ${c.raw}% (${fmtd})` : null;
+          }}}
+        },
+        scales: {
+          x: { stacked: true, grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } },
+          y: { stacked: true, min: 0, max: 100, grid: { color: grid },
+            ticks: { color: muted, font: { size: 11 }, callback: v => v + '%' },
+            title: { display: true, text: 'Share of monthly total (%)', color: muted, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  rebuild();
+  document.querySelectorAll('[data-mix]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      mixMetric = btn.dataset.mix;
+      document.querySelectorAll('[data-mix]').forEach(b => b.classList.toggle('active', b === btn));
+      rebuild();
+    });
+  });
+}
+
+// ── BRAND SCORECARDS ──────────────────────────────────────────────────────────
+function initScorecards() {
+  const container = document.getElementById('scorecards-container');
+  const MONTHS_ORD = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+
+  const rows = Object.entries(BRAND_MONTHS).map(([brand, months]) => {
+    const totalUnits = months.reduce((s, m) => s + m.units, 0);
+    const totalRev   = months.reduce((s, m) => s + m.rev, 0);
+    const avgDisc    = months.reduce((s, m) => s + m.disc, 0) / months.length;
+    const motivMs    = months.filter(m => m.motiv != null);
+    const avgMotiv   = motivMs.length ? motivMs.reduce((s, m) => s + m.motiv, 0) / motivMs.length : null;
+    const sorted     = [...months].sort((a, b) => MONTHS_ORD.indexOf(a.m) - MONTHS_ORD.indexOf(b.m));
+    const first = sorted[0].units, last = sorted[sorted.length-1].units;
+    const growth = sorted.length >= 2 ? (last - first) / first * 100 : null;
+    return { brand, totalUnits, totalRev, avgDisc, avgMotiv, growth, nMonths: months.length,
+             color: BRAND_COL[brand] || '#94a3b8',
+             firstM: sorted[0].m, lastM: sorted[sorted.length-1].m };
+  });
+
+  let sortKey = 'totalRev', sortDir = -1;
+
+  function renderTable() {
+    const sorted = [...rows].sort((a, b) => {
+      const av = a[sortKey] ?? -Infinity, bv = b[sortKey] ?? -Infinity;
+      return (av - bv) * sortDir;
+    });
+    const cols = [
+      { key:'brand',      label:'Brand',
+        fmt: r => `<span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.color};flex-shrink:0"></span>${r.brand}</span>` },
+      { key:'totalUnits', label:'Units',       fmt: r => r.totalUnits.toLocaleString() },
+      { key:'totalRev',   label:'Revenue (₾)', fmt: r => '₾' + (r.totalRev/1000).toFixed(0) + 'K' },
+      { key:'avgDisc',    label:'Avg Disc',    fmt: r => r.avgDisc.toFixed(1) + '%' },
+      { key:'avgMotiv',   label:'Avg Motiv',   fmt: r => r.avgMotiv != null ? r.avgMotiv.toFixed(1) : '—' },
+      { key:'nMonths',    label:'Months',      fmt: r => r.nMonths },
+      { key:'growth',     label:'Growth',      fmt: r => {
+        if (r.growth == null) return '—';
+        const cls = r.growth >= 0 ? 'g-txt' : 'r-txt';
+        const arrow = r.growth >= 0 ? '▲' : '▼';
+        return `<span class="${cls}">${arrow} ${Math.abs(r.growth).toFixed(0)}%</span> <span style="color:var(--muted);font-size:10px">${r.firstM}→${r.lastM}</span>`;
+      }},
+    ];
+    let html = `<table class="sc-table"><thead><tr>`;
+    for (const col of cols) {
+      const sc = col.key === sortKey ? (sortDir === 1 ? 'sort-asc' : 'sort-desc') : '';
+      html += `<th class="${sc}" data-sc-key="${col.key}">${col.label}</th>`;
+    }
+    html += `</tr></thead><tbody>`;
+    for (const row of sorted) {
+      html += `<tr>` + cols.map(col => `<td>${col.fmt(row)}</td>`).join('') + `</tr>`;
+    }
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+    container.querySelectorAll('th[data-sc-key]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.scKey;
+        if (sortKey === key) sortDir = -sortDir; else { sortKey = key; sortDir = -1; }
+        renderTable();
+      });
+    });
+  }
+  renderTable();
+
+  // ── Averages table ────────────────────────────────────────────────────────
+  const avgContainer = document.getElementById('scorecards-avg-container');
+  const avgRows = rows.map(r => ({
+    ...r,
+    avgUnits: r.totalUnits / r.nMonths,
+    avgRev:   r.totalRev   / r.nMonths,
+  }));
+
+  let avgSortKey = 'avgRev', avgSortDir = -1;
+
+  function renderAvgTable() {
+    const sorted = [...avgRows].sort((a, b) => {
+      const av = a[avgSortKey] ?? -Infinity, bv = b[avgSortKey] ?? -Infinity;
+      return (av - bv) * avgSortDir;
+    });
+    const cols = [
+      { key:'brand',    label:'Brand',
+        fmt: r => `<span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.color};flex-shrink:0"></span>${r.brand}</span>` },
+      { key:'avgUnits', label:'Avg Units/Mo',  fmt: r => r.avgUnits.toFixed(0) },
+      { key:'avgRev',   label:'Avg Rev/Mo (₾)',fmt: r => '₾' + (r.avgRev/1000).toFixed(1) + 'K' },
+      { key:'avgDisc',  label:'Avg Disc',      fmt: r => r.avgDisc != null ? r.avgDisc.toFixed(1) + '%' : '—' },
+      { key:'avgMotiv', label:'Avg Motiv',     fmt: r => r.avgMotiv != null ? r.avgMotiv.toFixed(1) : '—' },
+      { key:'nMonths',  label:'Months Active', fmt: r => r.nMonths },
+      { key:'growth',   label:'Growth',        fmt: r => {
+        if (r.growth == null) return '—';
+        const cls = r.growth >= 0 ? 'g-txt' : 'r-txt';
+        const arrow = r.growth >= 0 ? '▲' : '▼';
+        return `<span class="${cls}">${arrow} ${Math.abs(r.growth).toFixed(0)}%</span> <span style="color:var(--muted);font-size:10px">${r.firstM}→${r.lastM}</span>`;
+      }},
+    ];
+    let html = `<table class="sc-table"><thead><tr>`;
+    for (const col of cols) {
+      const sc = col.key === avgSortKey ? (avgSortDir === 1 ? 'sort-asc' : 'sort-desc') : '';
+      html += `<th class="${sc}" data-avg-key="${col.key}">${col.label}</th>`;
+    }
+    html += `</tr></thead><tbody>`;
+    for (const row of sorted) {
+      html += `<tr>` + cols.map(col => `<td>${col.fmt(row)}</td>`).join('') + `</tr>`;
+    }
+    html += `</tbody></table>`;
+    avgContainer.innerHTML = html;
+    avgContainer.querySelectorAll('th[data-avg-key]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.avgKey;
+        if (avgSortKey === key) avgSortDir = -avgSortDir; else { avgSortKey = key; avgSortDir = -1; }
+        renderAvgTable();
+      });
+    });
+  }
+  renderAvgTable();
+}
+
+// ── SEASONALITY HEATMAP ───────────────────────────────────────────────────────
+function initHeatmap() {
+  const container = document.getElementById('heatmap-container');
+  const MONTHS_ORD = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+  let heatSeg = 'category', heatMetric = 'units';
+
+  function renderHeatmap() {
+    const source  = heatSeg === 'category' ? CAT_MONTHS : BRAND_MONTHS;
+    const colMap  = heatSeg === 'category' ? CAT_COLOR  : BRAND_COL;
+    const segs    = Object.keys(source).sort();
+    const hdrLabel = heatSeg === 'category' ? 'Category' : 'Brand';
+    let html = `<div class="hm-wrap"><table class="hm-table"><thead><tr><th>${hdrLabel}</th>`;
+    for (const m of MONTHS_ORD) html += `<th>${m}</th>`;
+    html += `</tr></thead><tbody>`;
+    for (const seg of segs) {
+      const lookup = {};
+      for (const row of source[seg]) lookup[row.m] = row;
+      const vals = MONTHS_ORD.map(m => lookup[m]?.[heatMetric] ?? null);
+      const max  = Math.max(...vals.filter(v => v != null));
+      const color = colMap[seg] || '#94a3b8';
+      html += `<tr><td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0"></span>${seg}</span></td>`;
+      for (const v of vals) {
+        if (v == null) {
+          html += `<td><span class="hm-cell" style="color:var(--muted)">—</span></td>`;
+        } else {
+          const intensity = max > 0 ? v / max : 0;
+          const alpha = 0.08 + intensity * 0.82;
+          const textColor = intensity > 0.55 ? '#fff' : 'var(--fg)';
+          const bg = `rgba(13,148,136,${alpha.toFixed(2)})`;
+          const fmtd = heatMetric === 'rev' ? '₾' + (v/1000).toFixed(0) + 'K' : v >= 1000 ? (v/1000).toFixed(1) + 'K' : v;
+          html += `<td><span class="hm-cell" style="background:${bg};color:${textColor}">${fmtd}</span></td>`;
+        }
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+  }
+
+  renderHeatmap();
+  document.querySelectorAll('[data-heat-seg]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      heatSeg = btn.dataset.heatSeg;
+      document.querySelectorAll('[data-heat-seg]').forEach(b => b.classList.toggle('active', b === btn));
+      renderHeatmap();
+    });
+  });
+  document.querySelectorAll('[data-heat-metric]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      heatMetric = btn.dataset.heatMetric;
+      document.querySelectorAll('[data-heat-metric]').forEach(b => b.classList.toggle('active', b === btn));
+      renderHeatmap();
+    });
+  });
+}
+
+// ── PROMO EFFICIENCY ──────────────────────────────────────────────────────────
+function initPromo() {
+  function computePromo(source, colorMap) {
+    const items = [];
+    for (const [seg, months] of Object.entries(source)) {
+      const ms = months.filter(m => m.motiv != null && m.motiv > 0);
+      if (!ms.length) continue;
+      const totalRev = ms.reduce((s, m) => s + m.rev, 0);
+      const sumMotiv = ms.reduce((s, m) => s + m.motiv, 0);
+      items.push({ seg, efficiency: Math.round(totalRev / sumMotiv),
+                   totalRev, avgMotiv: +(sumMotiv/ms.length).toFixed(1), n: ms.length,
+                   color: colorMap[seg] || '#94a3b8' });
+    }
+    return items.sort((a, b) => a.efficiency - b.efficiency);
+  }
+
+  function buildPromoChart(canvasId, items) {
+    const { fg, muted, grid } = chartDefaults();
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: items.map(d => d.seg),
+        datasets: [{ label: '₾ per motiv unit',
+          data: items.map(d => d.efficiency),
+          backgroundColor: items.map(d => d.color + 'bb'),
+          borderColor: items.map(d => d.color), borderWidth: 1, borderRadius: 3 }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => {
+            const it = items[c.dataIndex];
+            return [`  ₾${c.raw.toLocaleString()} per motiv unit`,
+                    `  Total rev: ₾${(it.totalRev/1000).toFixed(0)}K`,
+                    `  Avg motiv: ${it.avgMotiv} (${it.n} months)`];
+          }}}
+        },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 }, callback: v => '₾' + (v/1000).toFixed(0) + 'K' } },
+          y: { grid: { drawOnChartArea: false }, ticks: { color: fg, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  const brandItems = computePromo(BRAND_MONTHS, BRAND_COL);
+  const catItems   = computePromo(CAT_MONTHS, CAT_COLOR);
+  if (brandItems.length) buildPromoChart('chart-promo-brand', brandItems);
+  if (catItems.length)   buildPromoChart('chart-promo-cat',   catItems);
+}
+
+// ── PRICE REALIZATION ─────────────────────────────────────────────────────────
+function initPrice() {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById('chart-price').getContext('2d');
+  const MONTHS_ORD = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+  const cats = Object.keys(CAT_MONTHS).sort();
+
+  const datasets = cats.map(cat => {
+    const lookup = {};
+    for (const row of CAT_MONTHS[cat]) lookup[row.m] = row;
+    return {
+      label: cat,
+      data: MONTHS_ORD.map(m => lookup[m]?.units > 0 ? +(lookup[m].rev / lookup[m].units).toFixed(1) : null),
+      borderColor: CAT_COLOR[cat] || '#94a3b8', backgroundColor: 'transparent',
+      fill: false, tension: 0.3, pointRadius: 4, pointHoverRadius: 6,
+      borderWidth: 2, spanGaps: false,
+    };
+  });
+
+  new Chart(ctx, {
+    type: 'line',
+    data: { labels: MONTHS_ORD, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: fg, font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => c.raw != null ? `  ${c.dataset.label}: ₾${c.raw}/unit` : null } }
+      },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } },
+        y: { grid: { color: grid },
+          ticks: { color: muted, font: { size: 11 }, callback: v => '₾' + v },
+          title: { display: true, text: 'Avg price (₾/unit)', color: muted, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ── CHART: SALES TAB ─────────────────────────────────────────────────────────
+let salesCatChartInst = null, salesBrandChartInst = null, salesProductChartInst = null;
+let salesSegInited = { total: true, category: false, brand: false, product: false };
+
+function buildSalesTotalChart() {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById('chart-sales-total').getContext('2d');
+  const priceData = MONTHLY.map(m => +(m.rev / m.units).toFixed(1));
+  const priceMin = Math.floor(Math.min(...priceData) * 0.88);
+  const priceMax = Math.ceil(Math.max(...priceData) * 1.12);
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: MONTHLY.map(m => m.m),
+      datasets: [
+        { label: 'Revenue (₾)', data: MONTHLY.map(m => m.rev),
+          backgroundColor: 'rgba(13,148,136,0.72)', borderColor: '#0d9488', borderWidth: 1, borderRadius: 3, yAxisID: 'y' },
+        { label: 'Units Sold', data: MONTHLY.map(m => m.units), type: 'line',
+          yAxisID: 'y2', borderColor: '#3b82f6', backgroundColor: 'transparent',
+          fill: false, tension: 0.4, pointRadius: 5, borderWidth: 2 },
+        { label: 'Avg Price (₾/unit)', data: priceData, type: 'line',
+          yAxisID: 'y3', borderColor: '#22c55e', borderDash: [4, 4], backgroundColor: 'transparent',
+          fill: false, tension: 0.3, pointRadius: 4, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: fg, font: { size: 12, family: 'Inter' }, boxWidth: 20 } },
+        tooltip: { callbacks: { label: c => {
+          if (c.dataset.label === 'Revenue (₾)') return `  Revenue: ₾${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Units Sold') return `  Units: ${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Avg Price (₾/unit)') return `  Avg Price: ₾${c.raw}/unit`;
+        }}}
+      },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } },
+        y: { grid: { color: grid },
+          ticks: { color: '#0d9488', font: { size: 11 }, callback: v => '₾' + (v/1000).toFixed(0) + 'K' },
+          title: { display: true, text: 'Revenue (₾)', color: '#0d9488', font: { size: 11 } } },
+        y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false },
+          ticks: { color: '#3b82f6', font: { size: 11 }, callback: v => v.toLocaleString() },
+          title: { display: true, text: 'Units', color: '#3b82f6', font: { size: 11 } } },
+        y3: { type: 'linear', position: 'right', min: priceMin, max: priceMax, display: false,
+          grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function buildSalesGroupChart(canvasId, monthsArr, color) {
+  const { fg, muted, grid } = chartDefaults();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const priceData = monthsArr.map(m => m.units > 0 ? +(m.rev / m.units).toFixed(1) : null);
+  const priceVals = priceData.filter(v => v !== null);
+  const priceMin = priceVals.length ? Math.floor(Math.min(...priceVals) * 0.88) : 0;
+  const priceMax = priceVals.length ? Math.ceil(Math.max(...priceVals) * 1.12) : 100;
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: monthsArr.map(m => m.m),
+      datasets: [
+        { label: 'Revenue (₾)', data: monthsArr.map(m => m.rev),
+          backgroundColor: color + 'bb', borderColor: color, borderWidth: 1, borderRadius: 3, yAxisID: 'y' },
+        { label: 'Units Sold', data: monthsArr.map(m => m.units), type: 'line',
+          yAxisID: 'y2', borderColor: '#3b82f6', backgroundColor: 'transparent',
+          fill: false, tension: 0.4, pointRadius: 5, borderWidth: 2 },
+        { label: 'Avg Price (₾/unit)', data: priceData, type: 'line',
+          yAxisID: 'y3', borderColor: '#22c55e', borderDash: [4, 4], backgroundColor: 'transparent',
+          fill: false, tension: 0.3, pointRadius: 4, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: fg, font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => {
+          if (c.dataset.label === 'Revenue (₾)') return `  Revenue: ₾${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Units Sold') return `  Units: ${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Avg Price (₾/unit)') return c.raw != null ? `  Avg Price: ₾${c.raw}/unit` : null;
+        }}}
+      },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } },
+        y: { grid: { color: grid },
+          ticks: { color: muted, font: { size: 11 }, callback: v => '₾' + (v/1000).toFixed(0) + 'K' },
+          title: { display: true, text: 'Revenue (₾)', color: muted, font: { size: 11 } } },
+        y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false },
+          ticks: { color: '#3b82f6', font: { size: 11 }, callback: v => v.toLocaleString() },
+          title: { display: true, text: 'Units', color: '#3b82f6', font: { size: 11 } } },
+        y3: { type: 'linear', position: 'right', min: priceMin, max: priceMax, display: false,
+          grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function buildSalesProductChart(sku) {
+  const { fg, muted, grid } = chartDefaults();
+  const skuData = SKU_MONTHS[sku];
+  if (!skuData) return;
+  const ctx = document.getElementById('chart-sales-product').getContext('2d');
+  if (salesProductChartInst) { salesProductChartInst.destroy(); salesProductChartInst = null; }
+  const priceData = skuData.months.map(m => m.units > 0 ? +(m.rev / m.units).toFixed(1) : null);
+  const priceVals = priceData.filter(v => v !== null);
+  const priceMin = priceVals.length ? Math.floor(Math.min(...priceVals) * 0.88) : 0;
+  const priceMax = priceVals.length ? Math.ceil(Math.max(...priceVals) * 1.12) : 100;
+  salesProductChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: skuData.months.map(m => m.m),
+      datasets: [
+        { label: 'Units Sold', data: skuData.months.map(m => m.units),
+          backgroundColor: 'rgba(59,130,246,0.65)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 3, yAxisID: 'y' },
+        { label: 'Revenue (₾)', data: skuData.months.map(m => m.rev), type: 'line',
+          yAxisID: 'y2', borderColor: '#0d9488', backgroundColor: 'transparent',
+          fill: false, tension: 0.4, pointRadius: 5, borderWidth: 2 },
+        { label: 'Avg Price (₾/unit)', data: priceData, type: 'line',
+          yAxisID: 'y3', borderColor: '#22c55e', borderDash: [4, 4], backgroundColor: 'transparent',
+          fill: false, tension: 0.3, pointRadius: 4, borderWidth: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: fg, font: { size: 11 } } },
+        tooltip: { callbacks: { label: c => {
+          if (c.dataset.label === 'Units Sold') return `  Units: ${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Revenue (₾)') return `  Revenue: ₾${c.raw.toLocaleString()}`;
+          if (c.dataset.label === 'Avg Price (₾/unit)') return c.raw != null ? `  Avg Price: ₾${c.raw}/unit` : null;
+        }}}
+      },
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } } },
+        y: { grid: { color: grid }, ticks: { color: muted, font: { size: 11 } },
+          title: { display: true, text: 'Units', color: muted, font: { size: 11 } } },
+        y2: { type: 'linear', position: 'right', grid: { drawOnChartArea: false },
+          ticks: { color: '#0d9488', font: { size: 11 }, callback: v => '₾' + (v/1000).toFixed(0) + 'K' },
+          title: { display: true, text: 'Revenue (₾)', color: '#0d9488', font: { size: 11 } } },
+        y3: { type: 'linear', position: 'right', min: priceMin, max: priceMax, display: false,
+          grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+}
+
+function populateSalesCatSelect() {
+  const sel = document.getElementById('sales-cat-select');
+  if (sel.options.length > 0) return;
+  const cats = Object.keys(CAT_MONTHS).filter(c => c !== 'Other').sort();
+  if (CAT_MONTHS['Other']) cats.push('Other');
+  for (const cat of cats) {
+    const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    if (salesCatChartInst) { salesCatChartInst.destroy(); salesCatChartInst = null; }
+    salesCatChartInst = buildSalesGroupChart('chart-sales-cat', CAT_MONTHS[sel.value], CAT_COLOR[sel.value] || '#94a3b8');
+  });
+  salesCatChartInst = buildSalesGroupChart('chart-sales-cat', CAT_MONTHS[cats[0]], CAT_COLOR[cats[0]] || '#94a3b8');
+}
+
+function populateSalesBrandSelect() {
+  const sel = document.getElementById('sales-brand-select');
+  if (sel.options.length > 0) return;
+  const brands = Object.keys(BRAND_MONTHS).filter(b => b !== 'Other').sort();
+  if (BRAND_MONTHS['Other']) brands.push('Other');
+  for (const brand of brands) {
+    const opt = document.createElement('option'); opt.value = brand; opt.textContent = brand; sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    if (salesBrandChartInst) { salesBrandChartInst.destroy(); salesBrandChartInst = null; }
+    salesBrandChartInst = buildSalesGroupChart('chart-sales-brand', BRAND_MONTHS[sel.value], BRAND_COL[sel.value] || '#94a3b8');
+  });
+  salesBrandChartInst = buildSalesGroupChart('chart-sales-brand', BRAND_MONTHS[brands[0]], BRAND_COL[brands[0]] || '#94a3b8');
+}
+
+function populateSalesProductSelect() {
+  const sel = document.getElementById('sales-product-select');
+  if (sel.options.length > 0) return;
+  const brands = [...new Set(PRODUCT_LIST.map(p => p.brand))].sort();
+  for (const brand of brands) {
+    const group = document.createElement('optgroup'); group.label = brand;
+    for (const p of PRODUCT_LIST.filter(x => x.brand === brand)) {
+      const opt = document.createElement('option'); opt.value = p.sku; opt.textContent = p.label; group.appendChild(opt);
+    }
+    sel.appendChild(group);
+  }
+  sel.addEventListener('change', () => buildSalesProductChart(sel.value));
+  buildSalesProductChart(PRODUCT_LIST[0].sku);
+}
+
+function initSales() {
+  buildSalesTotalChart();
+  initSkus();
+  document.querySelectorAll('.sseg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sseg-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.sseg-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('sseg-' + btn.dataset.sseg).classList.add('active');
+      if (!salesSegInited[btn.dataset.sseg]) {
+        salesSegInited[btn.dataset.sseg] = true;
+        if (btn.dataset.sseg === 'category') populateSalesCatSelect();
+        else if (btn.dataset.sseg === 'brand') populateSalesBrandSelect();
+        else if (btn.dataset.sseg === 'product') populateSalesProductSelect();
+      }
+    });
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// First tab's chart loads immediately
+chartsInited.sales = true;
+initSales();
+// Simulator defaults
+updateSim();
+</script>
